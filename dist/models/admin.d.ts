@@ -1,6 +1,6 @@
 import mongoose, { Document, Types } from "mongoose";
-import { Gender } from "@/types/enums";
-import { IContactInfo, IIdentityDocument, ITimestamps, IUserCredentials } from "@/types/interfaces";
+import { Gender } from "../src/types/enums";
+import { IContactInfo, IIdentityDocument, ITimestamps, IUserCredentials } from "../src/types/interfaces";
 /**
  * Admin Interface
  */

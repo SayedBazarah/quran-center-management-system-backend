@@ -1,34 +1,34 @@
-import path from "path";
-import cors from "cors";
-import express from "express";
-import helmet from "helmet";
-import morgan from "morgan";
-import { redisClient } from "./config/redis";
-import { globalRoutes } from "./routes";
-import { sessionMiddleware } from "./config/session";
-import { initializePassport } from "@/config/passport";
-import { errorHandler, notFound } from "./middlewares";
-const app = express();
-app.use(cors({
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const path_1 = __importDefault(require("path"));
+const cors_1 = __importDefault(require("cors"));
+const express_1 = __importDefault(require("express"));
+const helmet_1 = __importDefault(require("helmet"));
+const morgan_1 = __importDefault(require("morgan"));
+// import { redisClient } from "./config/redis";
+const routes_1 = require("./routes");
+const session_1 = require("./config/session");
+const passport_1 = require("./config/passport");
+const middlewares_1 = require("./middlewares");
+const app = (0, express_1.default)();
+app.use((0, cors_1.default)({
     origin: ["http://localhost:8083", "http://localhost:8088"], // your Next.js frontend
     credentials: true, // allow cookies
 }));
-app.use(helmet());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+app.use((0, helmet_1.default)());
+app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: true }));
+app.use((0, morgan_1.default)(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 // Serve Static Files
-app.use(express.static("media"));
-app.use("/media", express.static(path.join(process.cwd(), "media")));
-app.get("/", async (req, res) => {
-    const message = await redisClient.get("test");
-    res.json({ message });
-});
+app.use(express_1.default.static("media"));
+app.use("/media", express_1.default.static(path_1.default.join(process.cwd(), "media")));
 // Session middleware must come before passport
-app.use(sessionMiddleware);
-app.use(...initializePassport);
-app.use("/api", globalRoutes);
-app.use(notFound);
-app.use(errorHandler);
-export default app;
-//# sourceMappingURL=app.js.map
+app.use(session_1.sessionMiddleware);
+app.use(...passport_1.initializePassport);
+app.use("/api", routes_1.globalRoutes);
+app.use(middlewares_1.notFound);
+app.use(middlewares_1.errorHandler);
+exports.default = app;

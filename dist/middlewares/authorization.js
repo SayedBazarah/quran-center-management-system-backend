@@ -1,4 +1,7 @@
-export function requirePermissions(...required) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.requirePermissions = requirePermissions;
+function requirePermissions(...required) {
     return async (req, res, next) => {
         if (!req.user || !Array.isArray(req.user?.roleId?.permissions)) {
             res
@@ -18,4 +21,3 @@ export function requirePermissions(...required) {
         next();
     };
 }
-//# sourceMappingURL=authorization.js.map

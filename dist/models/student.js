@@ -1,9 +1,44 @@
-import { Gender, StudentStatus } from "@/types/enums";
-import mongoose, { Schema } from "mongoose";
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+const enums_1 = require("../types/enums");
+const mongoose_1 = __importStar(require("mongoose"));
 /**
  * Student Schema
  */
-const StudentSchema = new Schema({
+const StudentSchema = new mongoose_1.Schema({
     name: {
         type: String,
         required: [true, "Student name is required"],
@@ -57,7 +92,7 @@ const StudentSchema = new Schema({
     },
     gender: {
         type: String,
-        enum: Object.values(Gender),
+        enum: Object.values(enums_1.Gender),
     },
     address: {
         type: String,
@@ -66,8 +101,8 @@ const StudentSchema = new Schema({
     },
     status: {
         type: String,
-        enum: Object.values(StudentStatus),
-        default: StudentStatus.PENDING,
+        enum: Object.values(enums_1.StudentStatus),
+        default: enums_1.StudentStatus.PENDING,
     },
     // Firing tracking
     fired: {
@@ -78,7 +113,7 @@ const StudentSchema = new Schema({
         type: Date,
     },
     firedById: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Admin",
     },
     // Graduation tracking
@@ -87,15 +122,15 @@ const StudentSchema = new Schema({
     },
     // Acceptance tracking
     acceptedById: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Admin",
     },
     rejectedById: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Admin",
     },
     rejectionReason: {
-        type: Schema.Types.String,
+        type: mongoose_1.Schema.Types.String,
         maxlength: [200, "Address cannot exceed 200 characters"],
     },
     acceptedAt: {
@@ -106,19 +141,19 @@ const StudentSchema = new Schema({
     },
     // Relations
     branchId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Branch",
     },
     parentId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Parent",
     },
     adminId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Admin",
     },
     createdBy: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Admin",
     },
 }, {
@@ -175,10 +210,10 @@ StudentSchema.virtual("age").get(function () {
  */
 StudentSchema.pre("save", function (next) {
     if (this.fired) {
-        this.status = StudentStatus.DROPOUT;
+        this.status = enums_1.StudentStatus.DROPOUT;
     }
     else if (this.graduated) {
-        this.status = StudentStatus.GRADUATED;
+        this.status = enums_1.StudentStatus.GRADUATED;
     }
     next();
 });
@@ -192,9 +227,9 @@ StudentSchema.methods.markAsFired = async function (adminId, reason) {
     this.fired = true;
     this.firedAt = new Date();
     this.firedById = adminId;
-    this.status = StudentStatus.DROPOUT;
+    this.status = enums_1.StudentStatus.DROPOUT;
     // Log the action
-    await mongoose.models.Log.create({
+    await mongoose_1.default.models.Log.create({
         studentId: this._id,
         adminId,
         note: reason || "Student marked as fired",
@@ -206,7 +241,7 @@ StudentSchema.methods.markAsFired = async function (adminId, reason) {
  */
 StudentSchema.methods.markAsGraduated = async function () {
     this.graduated = new Date();
-    this.status = StudentStatus.GRADUATED;
+    this.status = enums_1.StudentStatus.GRADUATED;
     await this.save();
 };
 // ============================================================================
@@ -219,7 +254,7 @@ StudentSchema.statics.getActiveByBranch = function (branchId) {
     return this.find({
         branchId,
         fired: false,
-        status: { $in: [StudentStatus.ACTIVE, StudentStatus.PENDING] },
+        status: { $in: [enums_1.StudentStatus.ACTIVE, enums_1.StudentStatus.PENDING] },
     });
 };
 /**
@@ -228,5 +263,4 @@ StudentSchema.statics.getActiveByBranch = function (branchId) {
 StudentSchema.statics.getByStatus = function (status) {
     return this.find({ status }).populate("branchId parentId");
 };
-export default mongoose.model("Student", StudentSchema);
-//# sourceMappingURL=student.js.map
+exports.default = mongoose_1.default.model("Student", StudentSchema);

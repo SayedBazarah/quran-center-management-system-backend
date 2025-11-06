@@ -1,6 +1,9 @@
-import { config } from "dotenv";
-config();
-export const env = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkEnvVariables = exports.env = void 0;
+const dotenv_1 = require("dotenv");
+(0, dotenv_1.config)();
+exports.env = {
     port: +(process.env.PORT || 3000),
     environment: process.env.NODE_ENV || "development",
     url: process.env.BASE_URL || "http://localhost:3000",
@@ -64,24 +67,24 @@ export const env = {
         branchId: process.env.ADMIN_BRANCH_ID || "68ff0ffa9cee4a56fc5fa464",
     },
 };
-export const checkEnvVariables = () => {
-    if (!env.mongoDb.uri)
+const checkEnvVariables = () => {
+    if (!exports.env.mongoDb.uri)
         throw new Error("env:MONGO_URI must be defined");
-    if (!env.stripe.secret)
+    if (!exports.env.stripe.secret)
         throw new Error("env:STRIPE_SECRET_KEY must be defined");
-    if (!env.bcrypt.salt)
+    if (!exports.env.bcrypt.salt)
         throw new Error("env:BCRYPT_SALT must be defined");
-    if (!Number.isInteger(env.bcrypt.salt))
+    if (!Number.isInteger(exports.env.bcrypt.salt))
         throw new Error("env:BCRYPT_SALT must be integer");
-    if (!env.jwt.secret)
+    if (!exports.env.jwt.secret)
         throw new Error("env:JWT_SECRET must be defined");
-    if (!env.mail.port)
+    if (!exports.env.mail.port)
         throw new Error("env:MAIL_PORT must be defined");
-    if (!Number.isInteger(env.mail.port))
+    if (!Number.isInteger(exports.env.mail.port))
         throw new Error("env:MAIL_PORT must be integer");
-    if (!env.mail.user)
+    if (!exports.env.mail.user)
         throw new Error("env:MAIL_USER must be defined");
-    if (!env.mail.pass)
+    if (!exports.env.mail.pass)
         throw new Error("env:MAIL_PASS must be defined");
 };
-//# sourceMappingURL=env.js.map
+exports.checkEnvVariables = checkEnvVariables;

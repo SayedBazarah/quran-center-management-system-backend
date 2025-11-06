@@ -1,4 +1,7 @@
-export function notFound(req, res, _next) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.notFound = notFound;
+function notFound(req, res, _next) {
     res.status(404).json({
         success: false,
         message: "Route not found",
@@ -7,4 +10,3 @@ export function notFound(req, res, _next) {
         timestamp: new Date().toISOString(),
     });
 }
-//# sourceMappingURL=not-found.js.map

@@ -1,9 +1,13 @@
-import { Router } from "express";
-import passport from "@config/passport";
-import { asyncHandler } from "@utils/asyncHandler";
-import { signInSuccess, me, signOut } from "@/controllers";
-import { isAuthenticated } from "@/middlewares";
-const AuthRouter = Router();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const controllers_1 = require("../controllers");
+const passport_1 = __importDefault(require("passport"));
+const middlewares_1 = require("../middlewares");
+const AuthRouter = (0, express_1.Router)();
 // POST /api/v1/auth/sign-in
 AuthRouter.post("/sign-in", (req, res, next) => {
     // Explicitly annotate callback to avoid implicit any
@@ -24,11 +28,10 @@ AuthRouter.post("/sign-in", (req, res, next) => {
             return next();
         });
     };
-    passport.authenticate("local", cb)(req, res, next);
-}, asyncHandler(signInSuccess));
+    passport_1.default.authenticate("local", cb)(req, res, next);
+}, controllers_1.signInSuccess);
 // GET /api/v1/auth/me
-AuthRouter.get("/me", isAuthenticated, me);
+AuthRouter.get("/me", middlewares_1.isAuthenticated, controllers_1.me);
 // POST /api/v1/auth/sign-out
-AuthRouter.post("/sign-out", asyncHandler(signOut));
-export default AuthRouter;
-//# sourceMappingURL=auth.js.map
+AuthRouter.post("/sign-out", controllers_1.signOut);
+exports.default = AuthRouter;

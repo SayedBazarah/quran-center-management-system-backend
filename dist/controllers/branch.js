@@ -1,5 +1,9 @@
-import { Types } from "mongoose";
-import Branch from "@models/branch";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteBranchById = exports.updateBranchById = exports.listBranches = exports.createBranch = void 0;
+// src/controllers/branchController.ts
+const models_1 = require("../models");
+const mongoose_1 = require("mongoose");
 // Helpers
 function parseListQuery(q) {
     const page = Math.max(parseInt(String(q.page ?? "1"), 10), 1);
@@ -36,7 +40,7 @@ function parseListQuery(q) {
 /**
  * Create Branch
  */
-export const createBranch = async (req, res, next) => {
+const createBranch = async (req, res, next) => {
     try {
         const { name, address, phone, isActive } = req.body;
         if (!name) {
@@ -44,7 +48,7 @@ export const createBranch = async (req, res, next) => {
             return;
         }
         // create
-        const branch = await Branch.create({
+        const branch = await models_1.Branch.create({
             name,
             address,
             phone,
@@ -62,15 +66,16 @@ export const createBranch = async (req, res, next) => {
         return;
     }
 };
+exports.createBranch = createBranch;
 /**
  * List Branches with pagination, search, and filters
  */
-export const listBranches = async (req, res, next) => {
+const listBranches = async (req, res, next) => {
     try {
         const { page, limit, skip, filter, sort } = parseListQuery(req.query);
         const [items, total] = await Promise.all([
-            Branch.find(filter).sort(sort).skip(skip).limit(limit),
-            Branch.countDocuments(filter),
+            models_1.Branch.find(filter).sort(sort).skip(skip).limit(limit),
+            models_1.Branch.countDocuments(filter),
         ]);
         res.status(200).json({
             success: true,
@@ -89,18 +94,19 @@ export const listBranches = async (req, res, next) => {
         return;
     }
 };
+exports.listBranches = listBranches;
 /**
  * Update Branch by ID
  */
-export const updateBranchById = async (req, res, next) => {
+const updateBranchById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res.status(400).json({ success: false, message: "Invalid branch id" });
             return;
         }
         const { name, address, phone, isActive } = req.body;
-        const updated = await Branch.findByIdAndUpdate(id, {
+        const updated = await models_1.Branch.findByIdAndUpdate(id, {
             $set: {
                 ...(typeof name !== "undefined" && { name }),
                 ...(typeof address !== "undefined" && { address }),
@@ -124,23 +130,24 @@ export const updateBranchById = async (req, res, next) => {
         return;
     }
 };
+exports.updateBranchById = updateBranchById;
 /**
  * Delete Branch by ID
  * If you plan to soft-delete, replace with an update to isActive/isDeleted.
  */
-export const deleteBranchById = async (req, res, next) => {
+const deleteBranchById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res.status(400).json({ success: false, message: "Invalid branch id" });
             return;
         }
-        const existing = await Branch.findById(id);
+        const existing = await models_1.Branch.findById(id);
         if (!existing) {
             res.status(404).json({ success: false, message: "Branch not found" });
             return;
         }
-        await Branch.deleteOne({ _id: id });
+        await models_1.Branch.deleteOne({ _id: id });
         res.status(200).json({
             success: true,
             message: "Branch deleted successfully",
@@ -152,4 +159,4 @@ export const deleteBranchById = async (req, res, next) => {
         return;
     }
 };
-//# sourceMappingURL=branch.js.map
+exports.deleteBranchById = deleteBranchById;

@@ -1,6 +1,41 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
 // src/models/Payment.ts
-import mongoose, { Schema } from "mongoose";
-const PaymentSchema = new Schema({
+const mongoose_1 = __importStar(require("mongoose"));
+const PaymentSchema = new mongoose_1.Schema({
     amount: {
         type: Number,
         required: [true, "Amount is required"],
@@ -13,19 +48,19 @@ const PaymentSchema = new Schema({
     },
     // relations
     enrollmentId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Enrollment",
         required: [true, "Enrollment is required"],
         index: true,
     },
     studentId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Student",
         required: [true, "Student is required"],
         index: true,
     },
     adminId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Admin",
         index: true,
     },
@@ -36,5 +71,4 @@ const PaymentSchema = new Schema({
 // Common aggregates: by student, by enrollment, by date
 PaymentSchema.index({ studentId: 1, createdAt: -1 });
 PaymentSchema.index({ enrollmentId: 1, createdAt: -1 });
-export default mongoose.model("Payment", PaymentSchema);
-//# sourceMappingURL=payment.js.map
+exports.default = mongoose_1.default.model("Payment", PaymentSchema);

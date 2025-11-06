@@ -1,8 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.signOut = exports.me = exports.signInSuccess = void 0;
 /**
  * POST /auth/sign-in
  * Uses passport local strategy; this controller assumes passport.authenticate ran earlier
  */
-export const signInSuccess = async (req, res, _next) => {
+const signInSuccess = async (req, res, _next) => {
     // At this point, req.user is set and session persisted
     res.status(200).json({
         success: true,
@@ -11,11 +14,12 @@ export const signInSuccess = async (req, res, _next) => {
     });
     return;
 };
+exports.signInSuccess = signInSuccess;
 /**
  * GET /auth/me
  * Returns the current session user, if authenticated
  */
-export const me = async (req, res, _next) => {
+const me = async (req, res, _next) => {
     console.log("--- Logs ===", {
         user: req.user,
     });
@@ -26,11 +30,12 @@ export const me = async (req, res, _next) => {
     res.status(200).json({ success: true, user: req.user });
     return;
 };
+exports.me = me;
 /**
  * POST /auth/sign-out
  * Destroys session
  */
-export const signOut = async (req, res, next) => {
+const signOut = async (req, res, next) => {
     req.logout?.((err) => {
         if (err)
             return next(err);
@@ -40,4 +45,4 @@ export const signOut = async (req, res, next) => {
         });
     });
 };
-//# sourceMappingURL=auth.js.map
+exports.signOut = signOut;

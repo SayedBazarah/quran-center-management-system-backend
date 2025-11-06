@@ -1,6 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.normalizeFormDataArrays = normalizeFormDataArrays;
 const DOT_INDEX = /\.([0-9]+)$/;
 const BRACKET_INDEX = /\[([0-9]+)\]$/;
-export function normalizeFormDataArrays(fields) {
+function normalizeFormDataArrays(fields) {
     return (req, _res, next) => {
         if (!req.body || typeof req.body !== "object")
             return next();
@@ -34,4 +37,3 @@ export function normalizeFormDataArrays(fields) {
         next();
     };
 }
-//# sourceMappingURL=normalize-body.js.map

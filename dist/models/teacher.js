@@ -1,11 +1,49 @@
-import mongoose, { Schema } from "mongoose";
-import bcrypt from "bcryptjs";
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const mongoose_1 = __importStar(require("mongoose"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 // import { ITimestamps, IContactInfo, IIdentityDocument, IUserCredentials } from '@types/interfaces';
-import { Gender } from "@/types/enums";
+const enums_1 = require("../types/enums");
 /**
  * Teacher Schema
  */
-const TeacherSchema = new Schema({
+const TeacherSchema = new mongoose_1.Schema({
     name: {
         type: String,
         required: [true, "Teacher name is required"],
@@ -59,7 +97,7 @@ const TeacherSchema = new Schema({
     },
     gender: {
         type: String,
-        enum: Object.values(Gender),
+        enum: Object.values(enums_1.Gender),
     },
     password: {
         type: String,
@@ -67,7 +105,7 @@ const TeacherSchema = new Schema({
         select: false,
     },
     branchId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Branch",
         required: [true, "Branch ID is required"],
         index: true,
@@ -95,8 +133,8 @@ TeacherSchema.pre("save", async function (next) {
         return next();
     }
     try {
-        const salt = await bcrypt.genSalt(12);
-        this.password = await bcrypt.hash(this.password, salt);
+        const salt = await bcryptjs_1.default.genSalt(12);
+        this.password = await bcryptjs_1.default.hash(this.password, salt);
         next();
     }
     catch (error) {
@@ -109,7 +147,6 @@ TeacherSchema.pre("save", async function (next) {
 TeacherSchema.methods.comparePassword = async function (candidatePassword) {
     if (!this.password)
         return false;
-    return await bcrypt.compare(candidatePassword, this.password);
+    return await bcryptjs_1.default.compare(candidatePassword, this.password);
 };
-export default mongoose.model("Teacher", TeacherSchema);
-//# sourceMappingURL=teacher.js.map
+exports.default = mongoose_1.default.model("Teacher", TeacherSchema);

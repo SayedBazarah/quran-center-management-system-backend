@@ -1,8 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteAdminById = exports.updateAdminById = exports.listAdmins = exports.createAdmin = void 0;
 // src/controllers/adminController.ts
-import { env } from "@/env";
-import { Admin } from "@/models";
-import { MediaCategory, saveMulterFile } from "@/utils/file";
-import { Types } from "mongoose";
+const env_1 = require("../env");
+const models_1 = require("../models");
+const file_1 = require("../utils/file");
+const mongoose_1 = require("mongoose");
 // Helper: parse pagination/sorting
 function parseListQuery(q) {
     const page = Math.max(parseInt(String(q.page || "1"), 10), 1);
@@ -20,12 +23,12 @@ function parseListQuery(q) {
         ];
     }
     // Optional branch filter
-    if (q.branchId && Types.ObjectId.isValid(String(q.branchId))) {
-        filter.branchId = new Types.ObjectId(String(q.branchId));
+    if (q.branchId && mongoose_1.Types.ObjectId.isValid(String(q.branchId))) {
+        filter.branchId = new mongoose_1.Types.ObjectId(String(q.branchId));
     }
     // Optional role filter
-    if (q.roleId && Types.ObjectId.isValid(String(q.roleId))) {
-        filter.roleId = new Types.ObjectId(String(q.roleId));
+    if (q.roleId && mongoose_1.Types.ObjectId.isValid(String(q.roleId))) {
+        filter.roleId = new mongoose_1.Types.ObjectId(String(q.roleId));
     }
     // Sort input like: "-createdAt,name"
     const sortRaw = String(q.sort || "-createdAt");
@@ -46,7 +49,7 @@ function parseListQuery(q) {
  * - Validates minimal required fields (name, phone, nationalId, username)
  * - Password hashing handled in Admin schema pre-save
  */
-export const createAdmin = async (req, res, next) => {
+const createAdmin = async (req, res, next) => {
     try {
         if (!req.file) {
             res
@@ -55,7 +58,7 @@ export const createAdmin = async (req, res, next) => {
             return;
         }
         const { name, email, phone, nationalId, username, password, gender, roleId, branchIds, } = req.body;
-        const admin = await Admin.create({
+        const admin = await models_1.Admin.create({
             name,
             email,
             phone,
@@ -64,11 +67,11 @@ export const createAdmin = async (req, res, next) => {
             password,
             gender,
             roleId,
-            branchIds: branchIds.map((b) => new Types.ObjectId(b)),
+            branchIds: branchIds.map((b) => new mongoose_1.Types.ObjectId(b)),
         });
         try {
-            const { filename } = await saveMulterFile(MediaCategory.Admin, req.file);
-            admin.nationalIdImg = `${env.media}/admin/${filename}`;
+            const { filename } = await (0, file_1.saveMulterFile)(file_1.MediaCategory.Admin, req.file);
+            admin.nationalIdImg = `${env_1.env.media}/admin/${filename}`;
             await admin.save();
         }
         catch (err) {
@@ -84,23 +87,24 @@ export const createAdmin = async (req, res, next) => {
         return next(err);
     }
 };
+exports.createAdmin = createAdmin;
 /**
  * List Admins
  * - Supports pagination, sorting, search, and filtering by branch/role
  * - Returns meta pagination info
  */
-export const listAdmins = async (req, res, next) => {
+const listAdmins = async (req, res, next) => {
     try {
         const { page, limit, skip, filter, sort } = parseListQuery(req.query);
         const [items, total] = await Promise.all([
-            Admin.find(filter)
+            models_1.Admin.find(filter)
                 .select("-password")
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)
                 .populate("roleId", "name")
                 .populate("branchIds", "name"),
-            Admin.countDocuments(filter),
+            models_1.Admin.countDocuments(filter),
         ]);
         res.status(200).json({
             success: true,
@@ -117,20 +121,21 @@ export const listAdmins = async (req, res, next) => {
         return next(err);
     }
 };
+exports.listAdmins = listAdmins;
 /**
  * Update Admin by ID
  * - Validates ObjectId
  * - Prevents direct overwrite of immutable/sensitive combinations if needed
  */
-export const updateAdminById = async (req, res, next) => {
+const updateAdminById = async (req, res, next) => {
     try {
         let filename = undefined;
         if (req.file) {
-            const result = await saveMulterFile(MediaCategory.Admin, req.file);
+            const result = await (0, file_1.saveMulterFile)(file_1.MediaCategory.Admin, req.file);
             filename = result.filename;
         }
         const adminId = req.params.id;
-        if (adminId == env.admin.id) {
+        if (adminId == env_1.env.admin.id) {
             res.status(400).json({
                 success: false,
                 message: "Cannot update admin with id: " + adminId,
@@ -142,7 +147,7 @@ export const updateAdminById = async (req, res, next) => {
         // If password is provided, it will be hashed by pre-save hook via save() flow.
         // findByIdAndUpdate would bypass pre-save, so use two-step when password exists.
         if (password) {
-            const admin = await Admin.findById(adminId).select("+password");
+            const admin = await models_1.Admin.findById(adminId).select("+password");
             if (!admin) {
                 return next(new Error("Admin not found"));
             }
@@ -162,12 +167,12 @@ export const updateAdminById = async (req, res, next) => {
             if (typeof roleId !== "undefined")
                 admin.roleId = roleId;
             if (typeof filename !== "undefined")
-                admin.nationalIdImg = `${env.media}/admin/${filename}`;
+                admin.nationalIdImg = `${env_1.env.media}/admin/${filename}`;
             if (typeof branchIds !== "undefined")
-                admin.branchIds = branchIds?.map((b) => new Types.ObjectId(b));
+                admin.branchIds = branchIds?.map((b) => new mongoose_1.Types.ObjectId(b));
             admin.password = password;
             await admin.save(); // triggers pre-save hashing
-            const safe = await Admin.findById(admin._id).select("-password");
+            const safe = await models_1.Admin.findById(admin._id).select("-password");
             res.status(200).json({
                 success: true,
                 message: "Admin updated successfully",
@@ -176,7 +181,7 @@ export const updateAdminById = async (req, res, next) => {
         }
         else {
             // No password change, can use atomic update
-            const updated = await Admin.findByIdAndUpdate(adminId, {
+            const updated = await models_1.Admin.findByIdAndUpdate(adminId, {
                 $set: {
                     ...(typeof name !== "undefined" && { name }),
                     ...(typeof email !== "undefined" && { email }),
@@ -202,25 +207,26 @@ export const updateAdminById = async (req, res, next) => {
         return next(err);
     }
 };
+exports.updateAdminById = updateAdminById;
 /**
  * Delete Admin by ID
  * - Validates ObjectId
  * - Uses deleteOne (can be swapped for soft delete if needed)
  */
-export const deleteAdminById = async (req, res, next) => {
+const deleteAdminById = async (req, res, next) => {
     try {
         const adminId = req.params.id;
-        if (!Types.ObjectId.isValid(adminId)) {
+        if (!mongoose_1.Types.ObjectId.isValid(adminId)) {
             return next(new Error("Invalid admin id"));
         }
-        if (env.admin.id === adminId) {
+        if (env_1.env.admin.id === adminId) {
             return next(new Error("Cannot delete admin with id: " + adminId));
         }
-        const existing = await Admin.findById(adminId);
+        const existing = await models_1.Admin.findById(adminId);
         if (!existing) {
             res.status(404).json({ success: false, message: "Admin not found" });
         }
-        await Admin.deleteOne({ _id: adminId });
+        await models_1.Admin.deleteOne({ _id: adminId });
         res.status(200).json({
             success: true,
             message: "Admin deleted successfully",
@@ -230,4 +236,4 @@ export const deleteAdminById = async (req, res, next) => {
         return next(err);
     }
 };
-//# sourceMappingURL=admin.js.map
+exports.deleteAdminById = deleteAdminById;

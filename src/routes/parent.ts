@@ -1,6 +1,5 @@
 // src/routes/parentRoutes.ts
 import { Router } from "express";
-import { asyncHandler } from "@utils/asyncHandler";
 import {
   createParent,
   updateParentById,
@@ -12,18 +11,18 @@ import {
 const ParentRouter = Router();
 
 // POST /api/v1/parents
-ParentRouter.post("/", asyncHandler(createParent));
+ParentRouter.post("/", createParent);
 
 // PATCH /api/v1/parents/:id
-ParentRouter.patch("/:id", asyncHandler(updateParentById));
+ParentRouter.patch("/:id", updateParentById);
 
 // DELETE /api/v1/parents/:id
-ParentRouter.delete("/:id", asyncHandler(deleteParentById));
+ParentRouter.delete("/:id", deleteParentById);
 
 // GET /api/v1/parents/by-student/:studentId
-ParentRouter.get("/by-student/:studentId", asyncHandler(getParentByStudentId));
+ParentRouter.get("/by-student/:studentId", getParentByStudentId);
 
 // GET /api/v1/parents
-ParentRouter.get("/", asyncHandler(listParents));
+ParentRouter.get("/", listParents);
 
 export default ParentRouter;

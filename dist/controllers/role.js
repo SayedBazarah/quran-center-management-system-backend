@@ -1,6 +1,9 @@
-import { Types } from "mongoose";
-import { Role, Permission, Admin } from "@/models";
-import { env } from "@/env";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteRoleById = exports.updateRoleById = exports.listPermissions = exports.listRoles = exports.createRole = void 0;
+const mongoose_1 = require("mongoose");
+const models_1 = require("../models");
+const env_1 = require("../env");
 // Shared list parser (pagination, search, sorting)
 function parseListQuery(q) {
     const page = Math.max(parseInt(String(q.page ?? "1"), 10), 1);
@@ -34,12 +37,12 @@ function parseListQuery(q) {
  * - name required
  * - unique by name (handled by unique index; map duplicate key errors globally)
  */
-export const createRole = async (req, res, next) => {
+const createRole = async (req, res, next) => {
     try {
         const { name, permissions } = req.body;
-        const role = await Role.create({
+        const role = await models_1.Role.create({
             name,
-            permissions: permissions.map((p) => new Types.ObjectId(p)),
+            permissions: permissions.map((p) => new mongoose_1.Types.ObjectId(p)),
         });
         res.status(201).json({
             success: true,
@@ -53,15 +56,16 @@ export const createRole = async (req, res, next) => {
         return;
     }
 };
+exports.createRole = createRole;
 /**
  * List Roles with pagination and search
  */
-export const listRoles = async (req, res, next) => {
+const listRoles = async (req, res, next) => {
     try {
         const { page, limit, skip, filter, sort } = parseListQuery(req.query);
         const [items, total] = await Promise.all([
-            Role.find(filter).sort(sort).skip(skip).limit(limit),
-            Role.countDocuments(filter),
+            models_1.Role.find(filter).sort(sort).skip(skip).limit(limit),
+            models_1.Role.countDocuments(filter),
         ]);
         res.status(200).json({
             success: true,
@@ -80,12 +84,13 @@ export const listRoles = async (req, res, next) => {
         return;
     }
 };
-export const listPermissions = async (req, res, next) => {
+exports.listRoles = listRoles;
+const listPermissions = async (req, res, next) => {
     try {
         const { page, limit, skip, filter, sort } = parseListQuery(req.query);
         const [items, total] = await Promise.all([
-            Permission.find(filter).sort(sort).skip(skip).limit(limit),
-            Permission.countDocuments(filter),
+            models_1.Permission.find(filter).sort(sort).skip(skip).limit(limit),
+            models_1.Permission.countDocuments(filter),
         ]);
         res.status(200).json({
             success: true,
@@ -104,19 +109,20 @@ export const listPermissions = async (req, res, next) => {
         return;
     }
 };
+exports.listPermissions = listPermissions;
 /**
  * Edit Role by ID
  * - Updates name and/or isDefault
  * - If toggling to default, unset previous defaults (policy)
  */
-export const updateRoleById = async (req, res, next) => {
+const updateRoleById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res.status(400).json({ success: false, message: "Invalid role id" });
             return;
         }
-        if (env.admin.roleId === id) {
+        if (env_1.env.admin.roleId === id) {
             res.status(400).json({
                 success: false,
                 message: "Cannot delete or edit default role",
@@ -124,7 +130,7 @@ export const updateRoleById = async (req, res, next) => {
             return;
         }
         const { name, permissions } = req.body;
-        const updated = await Role.findByIdAndUpdate(id, {
+        const updated = await models_1.Role.findByIdAndUpdate(id, {
             $set: {
                 ...(typeof name !== "undefined" && { name }),
                 ...(typeof permissions !== "undefined" && { permissions }),
@@ -146,18 +152,19 @@ export const updateRoleById = async (req, res, next) => {
         return;
     }
 };
+exports.updateRoleById = updateRoleById;
 /**
  * Delete Role by ID
  * - Prevent deleting if assigned to any admin (defensive guard, optional)
  * - Prevent deleting if isDefault (policy)
  */
-export const deleteRoleById = async (req, res, next) => {
+const deleteRoleById = async (req, res, next) => {
     try {
         const id = req.params.id;
         console.log("Delete Role", {
             id,
         });
-        const existing = await Role.findById(id);
+        const existing = await models_1.Role.findById(id);
         if (!existing) {
             res.status(404).json({ success: false, message: "Role not found" });
             return;
@@ -170,7 +177,7 @@ export const deleteRoleById = async (req, res, next) => {
         }
         // Optional: check if any Admin currently references this role
         // Using populate-free count for performance
-        const adminCount = await Admin.countDocuments({ roleId: id });
+        const adminCount = await models_1.Admin.countDocuments({ roleId: id });
         if (adminCount > 0) {
             res.status(400).json({
                 success: false,
@@ -178,9 +185,9 @@ export const deleteRoleById = async (req, res, next) => {
             });
             return;
         }
-        await Role.deleteOne({ _id: id });
+        await models_1.Role.deleteOne({ _id: id });
         // Optional: clean up permissions referencing this role
-        await Permission.deleteMany({ roleId: id });
+        await models_1.Permission.deleteMany({ roleId: id });
         res.status(200).json({
             success: true,
             message: "Role deleted successfully",
@@ -192,4 +199,4 @@ export const deleteRoleById = async (req, res, next) => {
         return;
     }
 };
-//# sourceMappingURL=role.js.map
+exports.deleteRoleById = deleteRoleById;

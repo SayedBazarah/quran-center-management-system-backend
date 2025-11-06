@@ -1,4 +1,7 @@
-export function isAuthenticated(req, res, next) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isAuthenticated = isAuthenticated;
+function isAuthenticated(req, res, next) {
     // Works when passport.session() is mounted; otherwise check req.session
     const authenticated = typeof req.isAuthenticated === "function"
         ? req.isAuthenticated()
@@ -11,4 +14,3 @@ export function isAuthenticated(req, res, next) {
     }
     next();
 }
-//# sourceMappingURL=authentication.js.map

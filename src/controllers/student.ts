@@ -5,16 +5,12 @@ import { Student, Enrollment, Admin, Log } from "@/models";
 import { EnrollmentStatus, StudentStatus } from "@/types/enums";
 import { MediaCategory, saveMulterFile } from "@/utils/file";
 import { env } from "@/env";
-import enrollment from "@/models/enrollment";
-import teacher from "@/models/teacher";
-import { enrollmentStatus } from "./enrollment";
 
 // Shared list parser with pagination, search, sorting
 function parseListQuery(q: Request["query"]) {
   // Check if requesting all students
   const returnAll = q.all === "true" || q.limit === "all";
-  console.log("returnAll");
-  console.log(returnAll);
+
   const page = returnAll ? 1 : Math.max(parseInt(String(q.page ?? "1"), 10), 1);
   const limit = returnAll
     ? 0 // 0 means no limit in MongoDB
@@ -336,8 +332,8 @@ export const listStudentsWithEnrollment = async (
 ): Promise<void> => {
   try {
     const { page, limit, skip, filter, sort } = parseListQuery(req.query);
-    const latestOnly =
-      String(req.query.latest ?? "true").toLowerCase() === "true";
+    // const latestOnly =
+    //   String(req.query.latest ?? "true").toLowerCase() === "true";
     const adminBranchIds: string[] = (req.user as any)?.branchIds || [];
 
     if (!adminBranchIds.length) {

@@ -1,5 +1,5 @@
-import { Gender, StudentStatus } from "@/types/enums";
-import { IContactInfo, IIdentityDocument, ITimestamps } from "@/types/interfaces";
+import { Gender, StudentStatus } from "../src/types/enums";
+import { IContactInfo, IIdentityDocument, ITimestamps } from "../src/types/interfaces";
 import mongoose, { Document, Types } from "mongoose";
 /**
  * Student Interface

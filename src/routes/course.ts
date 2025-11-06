@@ -1,6 +1,5 @@
 // src/routes/courseRoutes.ts
 import { Router } from "express";
-import { asyncHandler } from "@utils/asyncHandler";
 import {
   createCourse,
   listCourses,
@@ -10,9 +9,9 @@ import {
 
 const CourseRouter = Router();
 
-CourseRouter.post("/", asyncHandler(createCourse));
-CourseRouter.get("/", asyncHandler(listCourses));
-CourseRouter.patch("/:id", asyncHandler(updateCourseById));
-CourseRouter.delete("/:id", asyncHandler(deleteCourseById));
+CourseRouter.post("/", createCourse);
+CourseRouter.get("/", listCourses);
+CourseRouter.patch("/:id", updateCourseById);
+CourseRouter.delete("/:id", deleteCourseById);
 
 export default CourseRouter;

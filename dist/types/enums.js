@@ -1,8 +1,11 @@
+"use strict";
 /**
  * Centralized Enums for QMS
  * Enhanced with validation helpers
  */
-export var EnrollmentStatus;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getEnumValues = exports.ParentRelationship = exports.Gender = exports.StudentStatus = exports.EnrollmentStatus = void 0;
+var EnrollmentStatus;
 (function (EnrollmentStatus) {
     EnrollmentStatus["PENDING"] = "pending";
     EnrollmentStatus["ACTIVE"] = "active";
@@ -10,8 +13,8 @@ export var EnrollmentStatus;
     EnrollmentStatus["DROPOUT"] = "dropout";
     EnrollmentStatus["GRADUATED"] = "graduated";
     EnrollmentStatus["REJECTED"] = "rejected";
-})(EnrollmentStatus || (EnrollmentStatus = {}));
-export var StudentStatus;
+})(EnrollmentStatus || (exports.EnrollmentStatus = EnrollmentStatus = {}));
+var StudentStatus;
 (function (StudentStatus) {
     StudentStatus["ACTIVE"] = "active";
     StudentStatus["PENDING"] = "pending";
@@ -19,13 +22,13 @@ export var StudentStatus;
     StudentStatus["DROPOUT"] = "dropout";
     StudentStatus["GRADUATED"] = "graduated";
     StudentStatus["REJECTED"] = "rejected";
-})(StudentStatus || (StudentStatus = {}));
-export var Gender;
+})(StudentStatus || (exports.StudentStatus = StudentStatus = {}));
+var Gender;
 (function (Gender) {
     Gender["MALE"] = "male";
     Gender["FEMALE"] = "female";
-})(Gender || (Gender = {}));
-export var ParentRelationship;
+})(Gender || (exports.Gender = Gender = {}));
+var ParentRelationship;
 (function (ParentRelationship) {
     ParentRelationship["FATHER"] = "father";
     ParentRelationship["MOTHER"] = "mother";
@@ -34,9 +37,9 @@ export var ParentRelationship;
     ParentRelationship["AUNT"] = "aunt";
     ParentRelationship["GRANDFATHER"] = "grandfather";
     ParentRelationship["GRANDMOTHER"] = "grandmother";
-})(ParentRelationship || (ParentRelationship = {}));
+})(ParentRelationship || (exports.ParentRelationship = ParentRelationship = {}));
 // Helper to get all enum values as array
-export const getEnumValues = (enumObj) => {
+const getEnumValues = (enumObj) => {
     return Object.values(enumObj);
 };
-//# sourceMappingURL=enums.js.map
+exports.getEnumValues = getEnumValues;

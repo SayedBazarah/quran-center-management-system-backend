@@ -1,7 +1,10 @@
-import { Types } from "mongoose";
-import { Teacher, Branch } from "@/models";
-import { env } from "@/env";
-import { MediaCategory, saveMulterFile } from "@/utils/file";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteTeacherById = exports.updateTeacherById = exports.listTeachers = exports.createTeacher = void 0;
+const mongoose_1 = require("mongoose");
+const models_1 = require("../models");
+const env_1 = require("../env");
+const file_1 = require("../utils/file");
 // Shared list parser (pagination, search, sorting, optional branch filter)
 function parseListQuery(q) {
     const page = Math.max(parseInt(String(q.page ?? "1"), 10), 1);
@@ -17,8 +20,8 @@ function parseListQuery(q) {
             { username: { $regex: search, $options: "i" } },
         ];
     }
-    if (q.branchId && Types.ObjectId.isValid(String(q.branchId))) {
-        filter.branchId = new Types.ObjectId(String(q.branchId));
+    if (q.branchId && mongoose_1.Types.ObjectId.isValid(String(q.branchId))) {
+        filter.branchId = new mongoose_1.Types.ObjectId(String(q.branchId));
     }
     const sortRaw = String(q.sort ?? "-createdAt");
     const sort = {};
@@ -37,7 +40,7 @@ function parseListQuery(q) {
  * Create Teacher
  * Required: name, email, nationalId, username, branchId
  */
-export const createTeacher = async (req, res, next) => {
+const createTeacher = async (req, res, next) => {
     try {
         const file = req.file;
         if (!file) {
@@ -45,19 +48,19 @@ export const createTeacher = async (req, res, next) => {
             return;
         }
         const { name, email, phone, nationalId, username, gender, branchId } = req.body;
-        const branch = await Branch.findById(branchId);
+        const branch = await models_1.Branch.findById(branchId);
         if (!branch) {
             res.status(404).json({ success: false, message: "Branch not found" });
             return;
         }
-        const { filename } = await saveMulterFile(MediaCategory.Teacher, file);
-        const teacher = await Teacher.create({
+        const { filename } = await (0, file_1.saveMulterFile)(file_1.MediaCategory.Teacher, file);
+        const teacher = await models_1.Teacher.create({
             name,
             email,
             phone,
             nationalId,
             username,
-            nationalIdImg: `${env.media}/${MediaCategory.Teacher}/${filename}`,
+            nationalIdImg: `${env_1.env.media}/${file_1.MediaCategory.Teacher}/${filename}`,
             gender,
             branchId,
         });
@@ -74,10 +77,11 @@ export const createTeacher = async (req, res, next) => {
         return;
     }
 };
+exports.createTeacher = createTeacher;
 /**
  * List Teachers (pagination, search, optional branch filter)
  */
-export const listTeachers = async (req, res, next) => {
+const listTeachers = async (req, res, next) => {
     try {
         const { page, limit, skip, filter, sort } = parseListQuery(req.query);
         const adminBranchIds = req.user?.branchIds || [];
@@ -87,10 +91,10 @@ export const listTeachers = async (req, res, next) => {
         }
         const newFilter = {
             ...filter,
-            branchId: { $in: adminBranchIds.map((id) => new Types.ObjectId(id)) },
+            branchId: { $in: adminBranchIds.map((id) => new mongoose_1.Types.ObjectId(id)) },
         };
         const [items, total] = await Promise.all([
-            Teacher.find(newFilter)
+            models_1.Teacher.find(newFilter)
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)
@@ -100,7 +104,7 @@ export const listTeachers = async (req, res, next) => {
                     path: "name",
                 },
             }),
-            Teacher.countDocuments(filter),
+            models_1.Teacher.countDocuments(filter),
         ]);
         res.status(200).json({
             success: true,
@@ -119,30 +123,31 @@ export const listTeachers = async (req, res, next) => {
         return;
     }
 };
+exports.listTeachers = listTeachers;
 /**
  * Edit Teacher by ID
  * If password provided, use findById -> assign -> save() to trigger hashing
  */
-export const updateTeacherById = async (req, res, next) => {
+const updateTeacherById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res.status(400).json({ success: false, message: "Invalid teacher id" });
             return;
         }
         const { name, email, phone, nationalId, nationalIdImg, gender, branchId } = req.body;
         if (typeof branchId !== "undefined") {
-            if (!Types.ObjectId.isValid(branchId)) {
+            if (!mongoose_1.Types.ObjectId.isValid(branchId)) {
                 res.status(400).json({ success: false, message: "Invalid branchId" });
                 return;
             }
-            const branch = await Branch.findById(branchId);
+            const branch = await models_1.Branch.findById(branchId);
             if (!branch) {
                 res.status(404).json({ success: false, message: "Branch not found" });
                 return;
             }
         }
-        const updated = await Teacher.findByIdAndUpdate(id, {
+        const updated = await models_1.Teacher.findByIdAndUpdate(id, {
             $set: {
                 ...(typeof name !== "undefined" && { name }),
                 ...(typeof email !== "undefined" && { email }),
@@ -169,22 +174,23 @@ export const updateTeacherById = async (req, res, next) => {
         return;
     }
 };
+exports.updateTeacherById = updateTeacherById;
 /**
  * Delete Teacher by ID
  */
-export const deleteTeacherById = async (req, res, next) => {
+const deleteTeacherById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res.status(400).json({ success: false, message: "Invalid teacher id" });
             return;
         }
-        const existing = await Teacher.findById(id);
+        const existing = await models_1.Teacher.findById(id);
         if (!existing) {
             res.status(404).json({ success: false, message: "Teacher not found" });
             return;
         }
-        await Teacher.deleteOne({ _id: id });
+        await models_1.Teacher.deleteOne({ _id: id });
         res.status(200).json({
             success: true,
             message: "Teacher deleted successfully",
@@ -196,4 +202,4 @@ export const deleteTeacherById = async (req, res, next) => {
         return;
     }
 };
-//# sourceMappingURL=teacher.js.map
+exports.deleteTeacherById = deleteTeacherById;

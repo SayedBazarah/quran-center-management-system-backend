@@ -1,28 +1,28 @@
-import { Router } from "express";
-import AuthRoute from "./auth";
-import AdminRouter from "./admin";
-import AnalyticsRouter from "./analytics";
-import BranchRouter from "./branch";
-import CourseRouter from "./course";
-import RoleRouter from "./role";
-import EnrollmentRouter from "./enrollment";
-import ParentRouter from "./parent";
-import StudentRouter from "./student";
-import TeacherRouter from "./teacher";
-const routes = Router();
-routes.use("/auth", AuthRoute);
-routes.use("/admins", AdminRouter);
-routes.use("/analytics", AnalyticsRouter);
-routes.use("/branches", BranchRouter);
-routes.use("/courses", CourseRouter);
-routes.use("/roles", RoleRouter);
-routes.use("/enrollments", EnrollmentRouter);
-routes.use("/parents", ParentRouter);
-routes.use("/students", StudentRouter);
-routes.use("/teachers", TeacherRouter);
-// Health check
-routes.get("/check-health", (req, res) => {
-    res.json({ message: "OK " });
-});
-export default routes;
-//# sourceMappingURL=global-route.js.map
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_1 = __importDefault(require("./auth"));
+const admin_1 = __importDefault(require("./admin"));
+const analytics_1 = __importDefault(require("./analytics"));
+const branch_1 = __importDefault(require("./branch"));
+const course_1 = __importDefault(require("./course"));
+const role_1 = __importDefault(require("./role"));
+const enrollment_1 = __importDefault(require("./enrollment"));
+const parent_1 = __importDefault(require("./parent"));
+const student_1 = __importDefault(require("./student"));
+const teacher_1 = __importDefault(require("./teacher"));
+const routes = (0, express_1.Router)();
+routes.use("/auth", auth_1.default);
+routes.use("/admins", admin_1.default);
+routes.use("/analytics", analytics_1.default);
+routes.use("/branches", branch_1.default);
+routes.use("/courses", course_1.default);
+routes.use("/roles", role_1.default);
+routes.use("/enrollments", enrollment_1.default);
+routes.use("/parents", parent_1.default);
+routes.use("/students", student_1.default);
+routes.use("/teachers", teacher_1.default);
+exports.default = routes;

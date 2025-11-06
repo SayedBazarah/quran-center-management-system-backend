@@ -1,5 +1,5 @@
-import { Gender, ParentRelationship } from "@/types/enums";
-import { IContactInfo, IIdentityDocument, ITimestamps } from "@/types/interfaces";
+import { Gender, ParentRelationship } from "../src/types/enums";
+import { IContactInfo, IIdentityDocument, ITimestamps } from "../src/types/interfaces";
 import mongoose, { Document, Types } from "mongoose";
 /**
  * Parent Interface

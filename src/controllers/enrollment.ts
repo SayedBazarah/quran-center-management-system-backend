@@ -4,7 +4,6 @@ import { Types } from "mongoose";
 import { Enrollment, Course, Student, Teacher, Admin, Log } from "@/models";
 import { EnrollmentStatus, getEnumValues, StudentStatus } from "@/types/enums";
 import { LogAction } from "@/models/log";
-import { stat } from "node:fs";
 
 // Shared pagination + search + sorting
 function parseListQuery(q: Request["query"]) {

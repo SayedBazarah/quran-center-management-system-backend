@@ -1,6 +1,6 @@
 // src/config/session.ts
 import session from "express-session";
-import { RedisStore } from "connect-redis";
+// import { RedisStore } from "connect-redis";
 import { createClient } from "redis";
 import MongoStore from "connect-mongo";
 import { env } from "@/env";
@@ -10,10 +10,10 @@ const redisClient = createClient();
 redisClient.connect().catch(console.error);
 
 // Initialize store.
-const redisStore = new RedisStore({
-  client: redisClient,
-  prefix: "auth:",
-});
+// const redisStore = new RedisStore({
+//   client: redisClient,
+//   prefix: "auth:",
+// });
 
 const isProd = process.env.NODE_ENV === "production";
 const isHttps = isProd && process.env.FORCE_HTTPS === "true";

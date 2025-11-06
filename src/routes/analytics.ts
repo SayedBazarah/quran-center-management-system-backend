@@ -11,6 +11,7 @@ AnalyticsRouter.get(
   "/",
   isAuthenticated,
   requirePermissions(GlobalPermissionCode.ReadReports),
+  validators.globalAnalytics,
   controllers.globalAnalytics
 );
 AnalyticsRouter.get(

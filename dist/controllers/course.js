@@ -1,6 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteCourseById = exports.updateCourseById = exports.listCourses = exports.createCourse = void 0;
 // src/controllers/courseController.ts
-import { Course } from "@/models";
-import { Types } from "mongoose";
+const models_1 = require("../models");
+const mongoose_1 = require("mongoose");
 // Parse pagination, search, and sorting
 function parseListQuery(q) {
     const page = Math.max(parseInt(String(q.page ?? "1"), 10), 1);
@@ -54,14 +57,14 @@ function parseListQuery(q) {
 /**
  * Create Course
  */
-export const createCourse = async (req, res, next) => {
+const createCourse = async (req, res, next) => {
     try {
         const { name, duration, order, price, description, isActive } = req.body;
         if (!name) {
             res.status(400).json({ success: false, message: "name is required" });
             return;
         }
-        const course = await Course.create({
+        const course = await models_1.Course.create({
             name,
             duration,
             price,
@@ -81,15 +84,16 @@ export const createCourse = async (req, res, next) => {
         return;
     }
 };
+exports.createCourse = createCourse;
 /**
  * List Courses (pagination + filters)
  */
-export const listCourses = async (req, res, next) => {
+const listCourses = async (req, res, next) => {
     try {
         const { page, limit, skip, filter, sort } = parseListQuery(req.query);
         const [items, total] = await Promise.all([
-            Course.find(filter).sort(sort).skip(skip).limit(limit),
-            Course.countDocuments(filter),
+            models_1.Course.find(filter).sort(sort).skip(skip).limit(limit),
+            models_1.Course.countDocuments(filter),
         ]);
         res.status(200).json({
             success: true,
@@ -108,18 +112,19 @@ export const listCourses = async (req, res, next) => {
         return;
     }
 };
+exports.listCourses = listCourses;
 /**
  * Update Course by ID
  */
-export const updateCourseById = async (req, res, next) => {
+const updateCourseById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res.status(400).json({ success: false, message: "Invalid course id" });
             return;
         }
         const { name, duration, price, order, description, isActive } = req.body;
-        const updated = await Course.findByIdAndUpdate(id, {
+        const updated = await models_1.Course.findByIdAndUpdate(id, {
             $set: {
                 ...(typeof name !== "undefined" && { name }),
                 ...(typeof duration !== "undefined" && { duration }),
@@ -145,22 +150,23 @@ export const updateCourseById = async (req, res, next) => {
         return;
     }
 };
+exports.updateCourseById = updateCourseById;
 /**
  * Delete Course by ID
  */
-export const deleteCourseById = async (req, res, next) => {
+const deleteCourseById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res.status(400).json({ success: false, message: "Invalid course id" });
             return;
         }
-        const existing = await Course.findById(id);
+        const existing = await models_1.Course.findById(id);
         if (!existing) {
             res.status(404).json({ success: false, message: "Course not found" });
             return;
         }
-        await Course.deleteOne({ _id: id });
+        await models_1.Course.deleteOne({ _id: id });
         res.status(200).json({
             success: true,
             message: "Course deleted successfully",
@@ -172,4 +178,4 @@ export const deleteCourseById = async (req, res, next) => {
         return;
     }
 };
-//# sourceMappingURL=course.js.map
+exports.deleteCourseById = deleteCourseById;

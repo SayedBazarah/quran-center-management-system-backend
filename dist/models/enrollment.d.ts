@@ -1,5 +1,5 @@
-import { EnrollmentStatus } from "@/types/enums";
-import { ITimestamps } from "@/types/interfaces";
+import { EnrollmentStatus } from "../src/types/enums";
+import { ITimestamps } from "../src/types/interfaces";
 import mongoose, { Document, Types } from "mongoose";
 export interface IEnrollment extends Document, ITimestamps {
     status: EnrollmentStatus;

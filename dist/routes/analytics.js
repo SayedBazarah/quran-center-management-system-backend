@@ -1,10 +1,45 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
 // src/routes/adminRoutes.ts
-import { Router } from "express";
-import * as controllers from "@/controllers";
-import { isAuthenticated, requirePermissions } from "@/middlewares";
-import { GlobalPermissionCode } from "@/bootstrap/permissionSeeds";
-const AnalyticsRouter = Router();
-AnalyticsRouter.get("/", isAuthenticated, requirePermissions(GlobalPermissionCode.ReadReports), controllers.globalAnalytics);
-AnalyticsRouter.get("/logs", isAuthenticated, requirePermissions(GlobalPermissionCode.ReadReports), controllers.globalLogs);
-export default AnalyticsRouter;
-//# sourceMappingURL=analytics.js.map
+const express_1 = require("express");
+const controllers = __importStar(require("../controllers"));
+const validators = __importStar(require("../validators"));
+const middlewares_1 = require("../middlewares");
+const permissionSeeds_1 = require("../bootstrap/permissionSeeds");
+const AnalyticsRouter = (0, express_1.Router)();
+AnalyticsRouter.get("/", middlewares_1.isAuthenticated, (0, middlewares_1.requirePermissions)(permissionSeeds_1.GlobalPermissionCode.ReadReports), validators.globalAnalytics, controllers.globalAnalytics);
+AnalyticsRouter.get("/logs", middlewares_1.isAuthenticated, (0, middlewares_1.requirePermissions)(permissionSeeds_1.GlobalPermissionCode.ReadReports), controllers.globalLogs);
+exports.default = AnalyticsRouter;

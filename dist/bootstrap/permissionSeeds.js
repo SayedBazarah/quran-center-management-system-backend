@@ -1,5 +1,8 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PERMISSION_SEEDS = exports.GlobalPermissionCode = void 0;
 // src/bootstrap/permissionSeeds.ts
-export var GlobalPermissionCode;
+var GlobalPermissionCode;
 (function (GlobalPermissionCode) {
     GlobalPermissionCode["CreateAdmin"] = "CREATE.ADMIN";
     GlobalPermissionCode["ReadAdmin"] = "READ.ADMIN";
@@ -34,8 +37,8 @@ export var GlobalPermissionCode;
     GlobalPermissionCode["ReadReports"] = "READ.REPORTS";
     GlobalPermissionCode["FireStudent"] = "FIRE.STUDENT";
     GlobalPermissionCode["ReactiveStudent"] = "REACTIVE.STUDENT";
-})(GlobalPermissionCode || (GlobalPermissionCode = {}));
-export const PERMISSION_SEEDS = [
+})(GlobalPermissionCode || (exports.GlobalPermissionCode = GlobalPermissionCode = {}));
+exports.PERMISSION_SEEDS = [
     { code: GlobalPermissionCode.CreateAdmin, name: "اضافة موظف" },
     { code: GlobalPermissionCode.ReadAdmin, name: "قراءة بيانات الموظفين" },
     { code: GlobalPermissionCode.DeleteAdmin, name: "مسح بيانات موظف" },
@@ -81,4 +84,3 @@ export const PERMISSION_SEEDS = [
     // -----------------------------------------------------------------------------
     { code: GlobalPermissionCode.ReadReports, name: "الاطلاع على التقارير" },
 ];
-//# sourceMappingURL=permissionSeeds.js.map

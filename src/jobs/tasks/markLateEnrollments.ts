@@ -1,6 +1,6 @@
 // src/jobs/tasks/markLateEnrollments.ts
 import { env } from "@/env";
-import { Enrollment, Log, Student } from "@/models";
+import { Enrollment, Log } from "@/models";
 import { LogAction } from "@/models/log";
 import { Types } from "mongoose";
 
@@ -64,9 +64,10 @@ export async function markLateEnrollmentsJob() {
     ],
   }));
 
-  // 5) Execute atomically per collection
-  const [enrRes] = await Promise.all([
-    enrollmentBulk.length ? enrollmentBulk.execute() : Promise.resolve(null),
-  ]);
+  // // 5) Execute atomically per collection
+  // const [enrRes] = await Promise.all([
+  //   enrollmentBulk.length ? enrollmentBulk.execute() : Promise.resolve(null),
+  // ]);
   if (logs.length) await Log.insertMany(logs, { ordered: false });
+  return;
 }

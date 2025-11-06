@@ -1,5 +1,10 @@
-import { env } from "@/env";
-import mongoose from "mongoose";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const env_1 = require("../env");
+const mongoose_1 = __importDefault(require("mongoose"));
 /**
  * Establishes connection to MongoDB database
  * Uses mongoose with modern connection options
@@ -14,19 +19,19 @@ const connectDB = async () => {
             serverSelectionTimeoutMS: 5000, // Timeout for server selection
             socketTimeoutMS: 45000, // Socket timeout
         };
-        const conn = await mongoose.connect(env.mongoDb.uri, options);
+        const conn = await mongoose_1.default.connect(env_1.env.mongoDb.uri, options);
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
         console.log(`📊 Database: ${conn.connection.name}`);
         // Handle connection events
-        mongoose.connection.on("error", (err) => {
+        mongoose_1.default.connection.on("error", (err) => {
             console.error(`❌ MongoDB connection error: ${err}`);
         });
-        mongoose.connection.on("disconnected", () => {
+        mongoose_1.default.connection.on("disconnected", () => {
             console.warn("⚠️ MongoDB disconnected");
         });
         // Graceful shutdown
         process.on("SIGINT", async () => {
-            await mongoose.connection.close();
+            await mongoose_1.default.connection.close();
             console.log("🔌 MongoDB connection closed through app termination");
             process.exit(0);
         });
@@ -36,5 +41,4 @@ const connectDB = async () => {
         process.exit(1); // Exit with failure
     }
 };
-export default connectDB;
-//# sourceMappingURL=mongodb.js.map
+exports.default = connectDB;

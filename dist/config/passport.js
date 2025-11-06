@@ -1,15 +1,21 @@
-import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
-import bcrypt from "bcryptjs";
-import { Admin } from "@/models"; // or User model if you prefer
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.initializePassport = void 0;
+const passport_1 = __importDefault(require("passport"));
+const passport_local_1 = require("passport-local");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const models_1 = require("../models"); // or User model if you prefer
 // Local strategy: use username or email; adapt to your login field
-passport.use(new LocalStrategy({
+passport_1.default.use(new passport_local_1.Strategy({
     usernameField: "username",
     passwordField: "password",
     passReqToCallback: false,
 }, async (username, password, done) => {
     try {
-        const admin = await Admin.findOne({
+        const admin = await models_1.Admin.findOne({
             $or: [
                 { username: username.toLowerCase() },
                 { email: username.toLowerCase() },
@@ -32,7 +38,7 @@ passport.use(new LocalStrategy({
         if (!admin || !admin.password) {
             return done(null, false, { message: "Invalid credentials" });
         }
-        const ok = await bcrypt.compare(password, admin.password);
+        const ok = await bcryptjs_1.default.compare(password, admin.password);
         if (!ok) {
             return done(null, false, { message: "Invalid credentials" });
         }
@@ -52,12 +58,11 @@ passport.use(new LocalStrategy({
     }
 }));
 // Minimal serialize/deserialize; store small object in session to avoid extra DB hits
-passport.serializeUser((user, done) => {
+passport_1.default.serializeUser((user, done) => {
     done(null, user);
 });
-passport.deserializeUser((user, done) => {
+passport_1.default.deserializeUser((user, done) => {
     done(null, user);
 });
-export default passport;
-export const initializePassport = [passport.initialize(), passport.session()];
-//# sourceMappingURL=passport.js.map
+exports.default = passport_1.default;
+exports.initializePassport = [passport_1.default.initialize(), passport_1.default.session()];

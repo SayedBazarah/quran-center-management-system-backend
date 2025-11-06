@@ -1,14 +1,28 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MediaCategory = void 0;
+exports.ensureDir = ensureDir;
+exports.initBaseFolders = initBaseFolders;
+exports.buildPath = buildPath;
+exports.ensureUserFolder = ensureUserFolder;
+exports.exists = exists;
+exports.saveBuffer = saveBuffer;
+exports.saveMulterFile = saveMulterFile;
+exports.saveMulterFiles = saveMulterFiles;
+exports.removeFile = removeFile;
+exports.removeFolder = removeFolder;
+exports.listFiles = listFiles;
 // src/utils/fileManager.ts
-import { randomUUID } from "node:crypto";
-import { mkdir, writeFile, access, rm, readdir } from "node:fs/promises";
-import { constants as fsConstants } from "node:fs";
-import { join, dirname, extname, basename } from "node:path";
-export var MediaCategory;
+const node_crypto_1 = require("node:crypto");
+const promises_1 = require("node:fs/promises");
+const node_fs_1 = require("node:fs");
+const node_path_1 = require("node:path");
+var MediaCategory;
 (function (MediaCategory) {
     MediaCategory["Admin"] = "admin";
     MediaCategory["Student"] = "student";
     MediaCategory["Teacher"] = "teacher";
-})(MediaCategory || (MediaCategory = {}));
+})(MediaCategory || (exports.MediaCategory = MediaCategory = {}));
 // Configure your media root (relative to process.cwd() by default)
 const MEDIA_ROOT = "media";
 // Utility logger (replace with your logger)
@@ -25,17 +39,17 @@ function logError(msg, meta) {
     console.error(`[file] ${msg}`, meta || {});
 }
 // Ensure a directory exists (recursive, idempotent)
-export async function ensureDir(dirPath) {
-    await mkdir(dirPath, { recursive: true }); // creates parents if missing [web:377][web:371]
+async function ensureDir(dirPath) {
+    await (0, promises_1.mkdir)(dirPath, { recursive: true }); // creates parents if missing [web:377][web:371]
     // logInfo("ensureDir", { dirPath });
 }
 // Initialize base folder structure at app start
-export async function initBaseFolders() {
+async function initBaseFolders() {
     const roots = [
-        join(process.cwd(), MEDIA_ROOT),
-        join(process.cwd(), MEDIA_ROOT, MediaCategory.Admin),
-        join(process.cwd(), MEDIA_ROOT, MediaCategory.Student),
-        join(process.cwd(), MEDIA_ROOT, MediaCategory.Teacher),
+        (0, node_path_1.join)(process.cwd(), MEDIA_ROOT),
+        (0, node_path_1.join)(process.cwd(), MEDIA_ROOT, MediaCategory.Admin),
+        (0, node_path_1.join)(process.cwd(), MEDIA_ROOT, MediaCategory.Student),
+        (0, node_path_1.join)(process.cwd(), MEDIA_ROOT, MediaCategory.Teacher),
     ];
     for (const dir of roots) {
         await ensureDir(dir); // safe to call repeatedly [web:377][web:371]
@@ -43,19 +57,19 @@ export async function initBaseFolders() {
     // logInfo("initBaseFolders completed", { MEDIA_ROOT, roots });
 }
 // Build absolute path under MEDIA_ROOT
-export function buildPath(...segments) {
-    return join(process.cwd(), MEDIA_ROOT, ...segments);
+function buildPath(...segments) {
+    return (0, node_path_1.join)(process.cwd(), MEDIA_ROOT, ...segments);
 }
 // Create a user-specific folder under a category, returns the absolute path
-export async function ensureUserFolder(category, userId) {
+async function ensureUserFolder(category, userId) {
     const dir = buildPath(category, userId);
     await ensureDir(dir);
     return dir;
 }
 // Check if a path exists with read access
-export async function exists(path) {
+async function exists(path) {
     try {
-        await access(path, fsConstants.F_OK | fsConstants.R_OK);
+        await (0, promises_1.access)(path, node_fs_1.constants.F_OK | node_fs_1.constants.R_OK);
         return true;
     }
     catch {
@@ -63,9 +77,9 @@ export async function exists(path) {
     }
 }
 // Save a single buffer to disk (creates parent folders)
-export async function saveBuffer(filePath, buffer) {
-    await ensureDir(dirname(filePath)); // make parents recursively [web:377][web:371]
-    await writeFile(filePath, buffer);
+async function saveBuffer(filePath, buffer) {
+    await ensureDir((0, node_path_1.dirname)(filePath)); // make parents recursively [web:377][web:371]
+    await (0, promises_1.writeFile)(filePath, buffer);
     logInfo("saveBuffer", { filePath, bytes: buffer.length });
     return filePath;
 }
@@ -73,17 +87,17 @@ export async function saveBuffer(filePath, buffer) {
 // helper: short random id fallback
 function shortId() {
     try {
-        return randomUUID().replace(/-/g, "").slice(0, 12);
+        return (0, node_crypto_1.randomUUID)().replace(/-/g, "").slice(0, 12);
     }
     catch {
         return Math.random().toString(36).slice(2, 10);
     }
 }
-export async function saveMulterFile(category, file, options) {
+async function saveMulterFile(category, file, options) {
     if (!file || !file.buffer) {
         throw new Error("Invalid Multer file: missing buffer");
     }
-    const ext = extname(file.originalname) || guessExtFromMime(file.mimetype); // preserve or infer extension [web:377]
+    const ext = (0, node_path_1.extname)(file.originalname) || guessExtFromMime(file.mimetype); // preserve or infer extension [web:377]
     // If no filename provided, generate random; otherwise sanitize the provided/original name (without path traversal)
     const base = options?.filename && options.filename.trim().length > 0
         ? sanitizeFileName(options.filename)
@@ -94,8 +108,8 @@ export async function saveMulterFile(category, file, options) {
         : `${base}${ext}`;
     const targetDir = buildPath(category, ...(options?.userId ? [options.userId] : []), ...(options?.subfolder ? [options.subfolder] : []));
     await ensureDir(targetDir); // mkdir -p behavior [web:371]
-    const targetPath = join(targetDir, finalName);
-    await writeFile(targetPath, file.buffer); // async, non-blocking write [web:377]
+    const targetPath = (0, node_path_1.join)(targetDir, finalName);
+    await (0, promises_1.writeFile)(targetPath, file.buffer); // async, non-blocking write [web:377]
     logInfo("saveMulterFile", {
         category,
         targetPath,
@@ -105,17 +119,17 @@ export async function saveMulterFile(category, file, options) {
     return { path: targetPath, filename: finalName };
 }
 // Save multiple Multer files at once
-export async function saveMulterFiles(category, files, options) {
+async function saveMulterFiles(category, files, options) {
     if (!Array.isArray(files) || files.length === 0)
         return [];
     const saved = [];
     const targetDir = buildPath(category, ...(options?.userId ? [options.userId] : []), ...(options?.subfolder ? [options?.subfolder] : []));
     await ensureDir(targetDir);
     for (const file of files) {
-        const ext = extname(file.originalname) || guessExtFromMime(file.mimetype);
+        const ext = (0, node_path_1.extname)(file.originalname) || guessExtFromMime(file.mimetype);
         const safeName = sanitizeFileName(file.originalname);
-        const targetPath = join(targetDir, safeName.endsWith(ext) ? safeName : `${safeName}${ext}`);
-        await writeFile(targetPath, file.buffer);
+        const targetPath = (0, node_path_1.join)(targetDir, safeName.endsWith(ext) ? safeName : `${safeName}${ext}`);
+        await (0, promises_1.writeFile)(targetPath, file.buffer);
         saved.push(targetPath);
         logInfo("saveMulterFiles:item", {
             targetPath,
@@ -127,13 +141,13 @@ export async function saveMulterFiles(category, files, options) {
     return saved;
 }
 // Remove a single file, ignore if missing
-export async function removeFile(filePath) {
+async function removeFile(filePath) {
     try {
         if (!(await exists(filePath))) {
             logWarn("removeFile:missing", { filePath });
             return false;
         }
-        await rm(filePath, { force: true }); // force ignores missing entries [web:377]
+        await (0, promises_1.rm)(filePath, { force: true }); // force ignores missing entries [web:377]
         logInfo("removeFile", { filePath });
         return true;
     }
@@ -143,14 +157,14 @@ export async function removeFile(filePath) {
     }
 }
 // Remove a directory recursively (safe, logs), ignore if missing
-export async function removeFolder(dirPath) {
+async function removeFolder(dirPath) {
     try {
         // Check existence to provide a clean log
         if (!(await exists(dirPath))) {
             logWarn("removeFolder:missing", { dirPath });
             return false;
         }
-        await rm(dirPath, { recursive: true, force: true }); // modern Node: rm replaces rmdir [web:372][web:384]
+        await (0, promises_1.rm)(dirPath, { recursive: true, force: true }); // modern Node: rm replaces rmdir [web:372][web:384]
         logInfo("removeFolder", { dirPath });
         return true;
     }
@@ -160,9 +174,9 @@ export async function removeFolder(dirPath) {
     }
 }
 // List files in a directory (non-recursive)
-export async function listFiles(dirPath) {
+async function listFiles(dirPath) {
     try {
-        const items = await readdir(dirPath, { withFileTypes: true });
+        const items = await (0, promises_1.readdir)(dirPath, { withFileTypes: true });
         const files = items.filter((d) => d.isFile()).map((d) => d.name);
         logInfo("listFiles", { dirPath, count: files.length });
         return files;
@@ -192,8 +206,7 @@ function guessExtFromMime(mime) {
 }
 // Basic filename sanitizer: strips directories, keeps base, replaces spaces
 function sanitizeFileName(name) {
-    const base = basename(name).replace(/\s+/g, "-");
+    const base = (0, node_path_1.basename)(name).replace(/\s+/g, "-");
     // Remove any path traversal or dangerous chars
     return base.replace(/[^a-zA-Z0-9._-]/g, "");
 }
-//# sourceMappingURL=file.js.map

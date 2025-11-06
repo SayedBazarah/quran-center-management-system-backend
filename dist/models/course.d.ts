@@ -1,4 +1,4 @@
-import { ITimestamps } from "@/types/interfaces";
+import { ITimestamps } from "../src/types/interfaces";
 import mongoose, { Document } from "mongoose";
 /**
  * Course Interface

@@ -1,18 +1,20 @@
-import { globalValidatorMiddleware } from "@/middlewares";
-import { body, param } from "express-validator";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteBranch = exports.updateBranch = exports.createBranch = void 0;
+const middlewares_1 = require("../middlewares");
+const express_validator_1 = require("express-validator");
 const commonValidator = [
-    body("name").isString().withMessage("Name must be a string"),
-    body("address").isString().optional().withMessage("Address must be a string"),
-    body("phone").isString().optional().withMessage("Phone must be a string"),
+    (0, express_validator_1.body)("name").isString().withMessage("Name must be a string"),
+    (0, express_validator_1.body)("address").isString().optional().withMessage("Address must be a string"),
+    (0, express_validator_1.body)("phone").isString().optional().withMessage("Phone must be a string"),
 ];
-export const createBranch = [...commonValidator, globalValidatorMiddleware];
-export const updateBranch = [
+exports.createBranch = [...commonValidator, middlewares_1.globalValidatorMiddleware];
+exports.updateBranch = [
     ...commonValidator,
-    param("id").isMongoId().withMessage("Id must be a valid MongoDB ID"),
-    globalValidatorMiddleware,
+    (0, express_validator_1.param)("id").isMongoId().withMessage("Id must be a valid MongoDB ID"),
+    middlewares_1.globalValidatorMiddleware,
 ];
-export const deleteBranch = [
-    param("id").isMongoId().withMessage("Id must be a valid MongoDB ID"),
-    globalValidatorMiddleware,
+exports.deleteBranch = [
+    (0, express_validator_1.param)("id").isMongoId().withMessage("Id must be a valid MongoDB ID"),
+    middlewares_1.globalValidatorMiddleware,
 ];
-//# sourceMappingURL=branch.js.map

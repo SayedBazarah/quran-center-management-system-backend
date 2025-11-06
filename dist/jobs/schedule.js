@@ -1,12 +1,18 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.scheduleJobs = scheduleJobs;
 // src/jobs/schedule.ts
-import cron from "node-cron";
-import { markLateEnrollmentsJob } from "./tasks/markLateEnrollments";
-export function scheduleJobs() {
+const node_cron_1 = __importDefault(require("node-cron"));
+const markLateEnrollments_1 = require("./tasks/markLateEnrollments");
+function scheduleJobs() {
     // Run every day at 02:00 local server time
-    cron.schedule("* 0 2 * * *", async () => {
+    node_cron_1.default.schedule("* 0 2 * * *", async () => {
         try {
             console.log("[cron] started");
-            const res = await markLateEnrollmentsJob();
+            const res = await (0, markLateEnrollments_1.markLateEnrollmentsJob)();
             console.log("[cron] markLateEnrollments", res);
         }
         catch (e) {
@@ -16,4 +22,3 @@ export function scheduleJobs() {
         timezone: process.env.TZ || "Africa/Cairo", // set to your preferred zone, e.g. 'Africa/Cairo'
     });
 }
-//# sourceMappingURL=schedule.js.map

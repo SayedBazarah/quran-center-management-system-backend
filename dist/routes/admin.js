@@ -1,13 +1,47 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
 // src/routes/adminRoutes.ts
-import { Router } from "express";
-import * as controllers from "@/controllers";
-import * as validators from "@/validators";
-import { isAuthenticated, requirePermissions, uploadSingle, normalizeFormDataArrays, } from "@/middlewares";
-import { GlobalPermissionCode } from "@/bootstrap/permissionSeeds";
-const AdminRouter = Router();
-AdminRouter.post("/", isAuthenticated, requirePermissions(GlobalPermissionCode.CreateAdmin), uploadSingle("nationalIdImg"), normalizeFormDataArrays(["branchIds"]), validators.createAdmin, controllers.createAdmin);
-AdminRouter.get("/", isAuthenticated, requirePermissions(GlobalPermissionCode.ReadAdmin), controllers.listAdmins);
-AdminRouter.patch("/:id", isAuthenticated, requirePermissions(GlobalPermissionCode.UpdateAdmin), uploadSingle("nationalIdImg"), normalizeFormDataArrays(["branchIds"]), validators.updateAdmin, controllers.updateAdminById);
-AdminRouter.delete("/:id", isAuthenticated, requirePermissions(GlobalPermissionCode.DeleteAdmin), validators.deleteAdmin, controllers.deleteAdminById);
-export default AdminRouter;
-//# sourceMappingURL=admin.js.map
+const express_1 = require("express");
+const controllers = __importStar(require("../controllers"));
+const validators = __importStar(require("../validators"));
+const middlewares_1 = require("../middlewares");
+const permissionSeeds_1 = require("../bootstrap/permissionSeeds");
+const AdminRouter = (0, express_1.Router)();
+AdminRouter.post("/", middlewares_1.isAuthenticated, (0, middlewares_1.requirePermissions)(permissionSeeds_1.GlobalPermissionCode.CreateAdmin), (0, middlewares_1.uploadSingle)("nationalIdImg"), (0, middlewares_1.normalizeFormDataArrays)(["branchIds"]), validators.createAdmin, controllers.createAdmin);
+AdminRouter.get("/", middlewares_1.isAuthenticated, (0, middlewares_1.requirePermissions)(permissionSeeds_1.GlobalPermissionCode.ReadAdmin), controllers.listAdmins);
+AdminRouter.patch("/:id", middlewares_1.isAuthenticated, (0, middlewares_1.requirePermissions)(permissionSeeds_1.GlobalPermissionCode.UpdateAdmin), (0, middlewares_1.uploadSingle)("nationalIdImg"), (0, middlewares_1.normalizeFormDataArrays)(["branchIds"]), validators.updateAdmin, controllers.updateAdminById);
+AdminRouter.delete("/:id", middlewares_1.isAuthenticated, (0, middlewares_1.requirePermissions)(permissionSeeds_1.GlobalPermissionCode.DeleteAdmin), validators.deleteAdmin, controllers.deleteAdminById);
+exports.default = AdminRouter;

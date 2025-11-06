@@ -1,4 +1,7 @@
-import { Branch, Enrollment, Log, Student } from "@/models";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.globalLogs = exports.oldGlobalAnalytics = exports.globalAnalytics = void 0;
+const models_1 = require("../models");
 // Helpers
 function parseListQuery(q) {
     const page = Math.max(parseInt(String(q.page ?? "1"), 10), 1);
@@ -31,7 +34,7 @@ function parseListQuery(q) {
     });
     return { page, limit, skip, filter, sort };
 }
-export const globalAnalytics = async (req, res, next) => {
+const globalAnalytics = async (req, res, _next) => {
     try {
         const { start, end } = req.query;
         if (!start || !end) {
@@ -47,11 +50,11 @@ export const globalAnalytics = async (req, res, next) => {
             return;
         }
         // 1. Fetch all branches
-        const allBranches = await Branch.find({}, { _id: 1, name: 1 }).lean();
+        const allBranches = await models_1.Branch.find({}, { _id: 1, name: 1 }).lean();
         // 2. Run three aggregations in parallel
         const [studentsByBranch, enrollmentsByBranch, enrollmentStatusCounts] = await Promise.all([
             // Students aggregation (same as before)
-            Student.aggregate([
+            models_1.Student.aggregate([
                 { $match: { createdAt: { $gte: startDate, $lt: endDate } } },
                 {
                     $group: {
@@ -75,7 +78,7 @@ export const globalAnalytics = async (req, res, next) => {
                 },
             ]),
             // Enrollments aggregation (same as before)
-            Enrollment.aggregate([
+            models_1.Enrollment.aggregate([
                 {
                     $lookup: {
                         from: "students",
@@ -109,7 +112,7 @@ export const globalAnalytics = async (req, res, next) => {
                 },
             ]),
             // NEW: Enrollment status counts by branch (all enrollments, not just new ones)
-            Enrollment.aggregate([
+            models_1.Enrollment.aggregate([
                 {
                     $lookup: {
                         from: "students",
@@ -177,7 +180,8 @@ export const globalAnalytics = async (req, res, next) => {
         res.status(500).json({ error: err.message || "Internal Server Error" });
     }
 };
-export const oldGlobalAnalytics = async (req, res, next) => {
+exports.globalAnalytics = globalAnalytics;
+const oldGlobalAnalytics = async (req, res, _next) => {
     try {
         const { start, end, branchId } = req.query;
         if (!start || !end) {
@@ -219,10 +223,10 @@ export const oldGlobalAnalytics = async (req, res, next) => {
         };
         // Parallel counts
         const [newStudents, newStudentsAccepted, newEnrollments, newEnrollmentsAccepted,] = await Promise.all([
-            Student.countDocuments(studentScope),
-            Student.countDocuments(studentAcceptedFilter),
-            Enrollment.countDocuments(enrollmentScope),
-            Enrollment.countDocuments(enrollmentAcceptedFilter),
+            models_1.Student.countDocuments(studentScope),
+            models_1.Student.countDocuments(studentAcceptedFilter),
+            models_1.Enrollment.countDocuments(enrollmentScope),
+            models_1.Enrollment.countDocuments(enrollmentAcceptedFilter),
         ]);
         res.json({
             window: { start: startDate.toISOString(), end: endDate.toISOString() },
@@ -239,12 +243,13 @@ export const oldGlobalAnalytics = async (req, res, next) => {
         res.status(500).json({ error: err.message || "Internal Server Error" });
     }
 };
-export const globalLogs = async (req, res, next) => {
+exports.oldGlobalAnalytics = oldGlobalAnalytics;
+const globalLogs = async (req, res, next) => {
     try {
         const { page, limit, skip, filter, sort } = parseListQuery(req.query);
         const [items, total] = await Promise.all([
-            Log.find(filter).sort(sort).skip(skip).limit(limit),
-            Log.countDocuments(filter),
+            models_1.Log.find(filter).sort(sort).skip(skip).limit(limit),
+            models_1.Log.countDocuments(filter),
         ]);
         res.status(200).json({
             success: true,
@@ -263,4 +268,4 @@ export const globalLogs = async (req, res, next) => {
         return;
     }
 };
-//# sourceMappingURL=analytics.js.map
+exports.globalLogs = globalLogs;

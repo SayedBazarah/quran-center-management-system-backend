@@ -12,7 +12,7 @@ const ALLOWED_EXT = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf"]);
 const storage = multer.memoryStorage();
 
 function fileFilter(
-  req: Express.Request,
+  _req: Express.Request,
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) {

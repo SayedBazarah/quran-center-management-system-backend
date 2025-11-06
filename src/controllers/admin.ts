@@ -1,11 +1,10 @@
 // src/controllers/adminController.ts
 import { env } from "@/env";
 import { Admin } from "@/models";
-import admin from "@/models/admin";
 import { CreateAdminHandler } from "@/types/handlers/admin.handlers";
 import { MediaCategory, saveMulterFile } from "@/utils/file";
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import mongoose, { mongo, Types } from "mongoose";
+import { Types } from "mongoose";
 
 // Helper: parse pagination/sorting
 function parseListQuery(q: Request["query"]) {

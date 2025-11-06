@@ -1,10 +1,5 @@
 // src/middlewares/errorHandler.ts
-import type {
-  Request,
-  Response,
-  NextFunction,
-  ErrorRequestHandler,
-} from "express";
+import type { ErrorRequestHandler } from "express";
 import multer from "multer"; // add at top
 import mongoose from "mongoose";
 import { AppError, ValidationError, ConflictError } from "@/errors";

@@ -1,8 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
-import passport from "@config/passport";
-import { asyncHandler } from "@utils/asyncHandler";
 import { signInSuccess, me, signOut } from "@/controllers";
-import { AuthenticateCallback } from "passport";
+import passport, { AuthenticateCallback } from "passport";
 import { isAuthenticated } from "@/middlewares";
 
 const AuthRouter = Router();
@@ -35,13 +33,13 @@ AuthRouter.post(
 
     passport.authenticate("local", cb)(req, res, next);
   },
-  asyncHandler(signInSuccess)
+  signInSuccess
 );
 
 // GET /api/v1/auth/me
 AuthRouter.get("/me", isAuthenticated, me);
 
 // POST /api/v1/auth/sign-out
-AuthRouter.post("/sign-out", asyncHandler(signOut));
+AuthRouter.post("/sign-out", signOut);
 
 export default AuthRouter;

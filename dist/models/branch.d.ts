@@ -1,5 +1,5 @@
 import mongoose, { Document } from "mongoose";
-import { ITimestamps } from "@/types/interfaces";
+import { ITimestamps } from "../src/types/interfaces";
 /**
  * Branch Interface
  */

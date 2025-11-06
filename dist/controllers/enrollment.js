@@ -1,7 +1,10 @@
-import { Types } from "mongoose";
-import { Enrollment, Course, Student, Teacher, Admin, Log } from "@/models";
-import { EnrollmentStatus, getEnumValues, StudentStatus } from "@/types/enums";
-import { LogAction } from "@/models/log";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createEnrollmentLog = exports.closeEnrollmentAsGraduated = exports.rejectEnrollment = exports.enrollmentStatus = exports.listLateEnrollments = exports.listPendingEnrollments = exports.listEnrollmentsByStudent = exports.deleteEnrollmentById = exports.updateEnrollmentById = exports.createEnrollment = void 0;
+const mongoose_1 = require("mongoose");
+const models_1 = require("../models");
+const enums_1 = require("../types/enums");
+const log_1 = require("../models/log");
 // Shared pagination + search + sorting
 function parseListQuery(q) {
     const page = Math.max(parseInt(String(q.page ?? "1"), 10), 1);
@@ -15,14 +18,14 @@ function parseListQuery(q) {
     // optional filters
     if (q.status)
         filter.status = String(q.status);
-    if (q.courseId && Types.ObjectId.isValid(String(q.courseId))) {
-        filter.courseId = new Types.ObjectId(String(q.courseId));
+    if (q.courseId && mongoose_1.Types.ObjectId.isValid(String(q.courseId))) {
+        filter.courseId = new mongoose_1.Types.ObjectId(String(q.courseId));
     }
-    if (q.teacherId && Types.ObjectId.isValid(String(q.teacherId))) {
-        filter.teacherId = new Types.ObjectId(String(q.teacherId));
+    if (q.teacherId && mongoose_1.Types.ObjectId.isValid(String(q.teacherId))) {
+        filter.teacherId = new mongoose_1.Types.ObjectId(String(q.teacherId));
     }
-    if (q.adminId && Types.ObjectId.isValid(String(q.adminId))) {
-        filter.adminId = new Types.ObjectId(String(q.adminId));
+    if (q.adminId && mongoose_1.Types.ObjectId.isValid(String(q.adminId))) {
+        filter.adminId = new mongoose_1.Types.ObjectId(String(q.adminId));
     }
     const sortRaw = String(q.sort ?? "-createdAt");
     const sort = {};
@@ -42,27 +45,27 @@ function parseListQuery(q) {
  * Required: courseId, studentId, optional: teacherId, adminId, startDate/endDate
  * Enforces: course, student, and (if provided) teacher/admin must exist
  */
-export const createEnrollment = async (req, res, next) => {
+const createEnrollment = async (req, res, next) => {
     try {
         const studentId = req.params.studentId;
         const { courseId, startDate, teacherId, adminId } = req.body;
         // Existence checks
         const [course, student, teacher, admin, activeEnrollment, alreadyEnrolled] = await Promise.all([
-            Course.findById(courseId),
-            Student.findById(studentId),
-            Teacher.findById(teacherId),
-            Admin.findById(adminId),
-            Enrollment.findOne({
+            models_1.Course.findById(courseId),
+            models_1.Student.findById(studentId),
+            models_1.Teacher.findById(teacherId),
+            models_1.Admin.findById(adminId),
+            models_1.Enrollment.findOne({
                 studentId,
                 status: {
                     $in: [
-                        EnrollmentStatus.PENDING,
-                        EnrollmentStatus.ACTIVE,
-                        EnrollmentStatus.LATE,
+                        enums_1.EnrollmentStatus.PENDING,
+                        enums_1.EnrollmentStatus.ACTIVE,
+                        enums_1.EnrollmentStatus.LATE,
                     ],
                 },
             }),
-            Enrollment.findOne({
+            models_1.Enrollment.findOne({
                 studentId,
                 courseId,
             }),
@@ -75,7 +78,7 @@ export const createEnrollment = async (req, res, next) => {
             res.status(404).json({ success: false, message: "الطالب غير موجود" });
             return;
         }
-        if (student.status !== StudentStatus.ACTIVE) {
+        if (student.status !== enums_1.StudentStatus.ACTIVE) {
             res.status(400).json({
                 success: false,
                 message: "يجب أن يكون الطالب يدرس، وليس اي حالة اخري لتسجيل في مرحلة جديدة",
@@ -91,7 +94,7 @@ export const createEnrollment = async (req, res, next) => {
             return;
         }
         if (alreadyEnrolled &&
-            alreadyEnrolled.status !== EnrollmentStatus.REJECTED) {
+            alreadyEnrolled.status !== enums_1.EnrollmentStatus.REJECTED) {
             res.status(400).json({
                 success: false,
                 message: "الطالب سجل بالفعل في هذه المرحلة",
@@ -106,8 +109,8 @@ export const createEnrollment = async (req, res, next) => {
             return;
         }
         // One student per course unique pair is enforced by index in model; catch E11000 globally
-        const enrollment = await Enrollment.create({
-            status: EnrollmentStatus.PENDING,
+        const enrollment = await models_1.Enrollment.create({
+            status: enums_1.EnrollmentStatus.PENDING,
             startDate: startDate ? new Date(startDate) : new Date(),
             courseId,
             studentId,
@@ -115,11 +118,11 @@ export const createEnrollment = async (req, res, next) => {
             adminId,
             createdBy: req.user?.id,
         });
-        await Log.create({
-            action: LogAction.ENROLL,
+        await models_1.Log.create({
+            action: log_1.LogAction.ENROLL,
             studentId: student._id,
             enrollmentId: enrollment._id,
-            adminId: new Types.ObjectId(`${req.user?.id}`),
+            adminId: new mongoose_1.Types.ObjectId(`${req.user?.id}`),
             note: `تم تسجيل الطالب بمرحلة ${course.name} بواسطة ${req.user?.name}`,
         });
         res.status(201).json({
@@ -134,20 +137,21 @@ export const createEnrollment = async (req, res, next) => {
         return;
     }
 };
+exports.createEnrollment = createEnrollment;
 /**
  * Edit Enrollment (by id)
  * Allows updating status, dates, and relations (with validation)
  */
-export const updateEnrollmentById = async (req, res, next) => {
+const updateEnrollmentById = async (req, res, next) => {
     try {
         const id = req.params.id;
         const { teacherId, adminId, status } = req.body;
         // Optional existence checks
         const checks = [];
         if (teacherId)
-            checks.push(Teacher.findById(teacherId));
+            checks.push(models_1.Teacher.findById(teacherId));
         if (adminId)
-            checks.push(Admin.findById(adminId));
+            checks.push(models_1.Admin.findById(adminId));
         const existence = await Promise.all(checks);
         if (existence.includes(null)) {
             res
@@ -155,7 +159,7 @@ export const updateEnrollmentById = async (req, res, next) => {
                 .json({ success: false, message: "Related document not found" });
             return;
         }
-        const original = await Enrollment.findById(id)
+        const original = await models_1.Enrollment.findById(id)
             .populate({
             path: "teacherId",
             select: "_id name",
@@ -172,7 +176,7 @@ export const updateEnrollmentById = async (req, res, next) => {
             res.status(404).json({ success: false, message: "Enrollment not found" });
             return;
         }
-        const updated = await Enrollment.findByIdAndUpdate(id, {
+        const updated = await models_1.Enrollment.findByIdAndUpdate(id, {
             $set: {
                 ...(typeof teacherId !== "undefined" && { teacherId }),
                 ...(typeof adminId !== "undefined" && { adminId }),
@@ -191,17 +195,17 @@ export const updateEnrollmentById = async (req, res, next) => {
             res.status(404).json({ success: false, message: "Enrollment not found" });
             return;
         }
-        await Log.create({
-            action: LogAction.UPDATE,
+        await models_1.Log.create({
+            action: log_1.LogAction.UPDATE,
             studentId: updated.studentId,
             enrollmentId: updated._id,
-            adminId: new Types.ObjectId(`${req.user?.id}`),
+            adminId: new mongoose_1.Types.ObjectId(`${req.user?.id}`),
             note: `تم تعديل بيانات الطالب ${original.studentId?.name} بواسطة المشرف  ${req.user?.name}، 
       ${(updated?.status !== original?.status &&
                 "تم تغير حالة المرحلة من " +
-                    getEnumValues(EnrollmentStatus)[getEnumValues(EnrollmentStatus).indexOf(original.status)] +
+                    (0, enums_1.getEnumValues)(enums_1.EnrollmentStatus)[(0, enums_1.getEnumValues)(enums_1.EnrollmentStatus).indexOf(original.status)] +
                     " إلى " +
-                    getEnumValues(EnrollmentStatus)[getEnumValues(EnrollmentStatus).indexOf(updated.status)]) ||
+                    (0, enums_1.getEnumValues)(enums_1.EnrollmentStatus)[(0, enums_1.getEnumValues)(enums_1.EnrollmentStatus).indexOf(updated.status)]) ||
                 ""}
       ${(updated?.teacherId?.id !== original?.teacherId?.id &&
                 "تم تغير المعلم من " +
@@ -229,24 +233,25 @@ export const updateEnrollmentById = async (req, res, next) => {
         return;
     }
 };
+exports.updateEnrollmentById = updateEnrollmentById;
 /**
  * Delete Enrollment (by id)
  */
-export const deleteEnrollmentById = async (req, res, next) => {
+const deleteEnrollmentById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res
                 .status(400)
                 .json({ success: false, message: "Invalid enrollment id" });
             return;
         }
-        const existing = await Enrollment.findById(id);
+        const existing = await models_1.Enrollment.findById(id);
         if (!existing) {
             res.status(404).json({ success: false, message: "Enrollment not found" });
             return;
         }
-        await Enrollment.deleteOne({ _id: id });
+        await models_1.Enrollment.deleteOne({ _id: id });
         res.status(200).json({
             success: true,
             message: "Enrollment deleted successfully",
@@ -258,20 +263,21 @@ export const deleteEnrollmentById = async (req, res, next) => {
         return;
     }
 };
+exports.deleteEnrollmentById = deleteEnrollmentById;
 /**
  * List all Enrollments for a Student by studentId
  */
-export const listEnrollmentsByStudent = async (req, res, next) => {
+const listEnrollmentsByStudent = async (req, res, next) => {
     try {
         const studentId = req.params.studentId;
-        if (!Types.ObjectId.isValid(studentId)) {
+        if (!mongoose_1.Types.ObjectId.isValid(studentId)) {
             res.status(400).json({ success: false, message: "Invalid studentId" });
             return;
         }
         const { page, limit, skip, sort } = parseListQuery(req.query);
-        const filter = { studentId: new Types.ObjectId(studentId) };
+        const filter = { studentId: new mongoose_1.Types.ObjectId(studentId) };
         const [items, total] = await Promise.all([
-            Enrollment.find(filter)
+            models_1.Enrollment.find(filter)
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)
@@ -290,7 +296,7 @@ export const listEnrollmentsByStudent = async (req, res, next) => {
                 populate: { path: "adminId", select: "_id name" },
             })
                 .populate({ path: "rejectedBy", select: "_id name" }),
-            Enrollment.countDocuments(filter),
+            models_1.Enrollment.countDocuments(filter),
         ]);
         res.status(200).json({
             success: true,
@@ -304,15 +310,16 @@ export const listEnrollmentsByStudent = async (req, res, next) => {
         return;
     }
 };
+exports.listEnrollmentsByStudent = listEnrollmentsByStudent;
 /**
  * List all pending Enrollments (require admin accept)
  */
-export const listPendingEnrollments = async (req, res, next) => {
+const listPendingEnrollments = async (req, res, next) => {
     try {
         const { page, limit, skip, sort } = parseListQuery(req.query);
-        const filter = { status: EnrollmentStatus.PENDING };
+        const filter = { status: enums_1.EnrollmentStatus.PENDING };
         const [items, total] = await Promise.all([
-            Enrollment.find(filter)
+            models_1.Enrollment.find(filter)
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)
@@ -327,7 +334,7 @@ export const listPendingEnrollments = async (req, res, next) => {
                 .populate({ path: "teacherId", select: "name" })
                 .populate({ path: "adminId", select: "name" })
                 .populate({ path: "createdBy", select: "name" }),
-            Enrollment.countDocuments(filter),
+            models_1.Enrollment.countDocuments(filter),
         ]);
         res.status(200).json({
             success: true,
@@ -341,9 +348,10 @@ export const listPendingEnrollments = async (req, res, next) => {
         return;
     }
 };
+exports.listPendingEnrollments = listPendingEnrollments;
 // List enrollments that are late (endDate < today, status can be anything)
 // Optional filters supported via query: courseId, teacherId, adminId, studentId
-export const listLateEnrollments = async (req, res, next) => {
+const listLateEnrollments = async (req, res, next) => {
     try {
         // Compute "start of today" in server timezone to avoid partial-day mismatches
         const now = new Date();
@@ -370,20 +378,20 @@ export const listLateEnrollments = async (req, res, next) => {
         const filter = { endDate: { $lt: startOfToday } };
         // Optional filters by ids
         const { courseId, teacherId, adminId, studentId } = req.query;
-        if (courseId && Types.ObjectId.isValid(String(courseId))) {
-            filter.courseId = new Types.ObjectId(String(courseId));
+        if (courseId && mongoose_1.Types.ObjectId.isValid(String(courseId))) {
+            filter.courseId = new mongoose_1.Types.ObjectId(String(courseId));
         }
-        if (teacherId && Types.ObjectId.isValid(String(teacherId))) {
-            filter.teacherId = new Types.ObjectId(String(teacherId));
+        if (teacherId && mongoose_1.Types.ObjectId.isValid(String(teacherId))) {
+            filter.teacherId = new mongoose_1.Types.ObjectId(String(teacherId));
         }
-        if (adminId && Types.ObjectId.isValid(String(adminId))) {
-            filter.adminId = new Types.ObjectId(String(adminId));
+        if (adminId && mongoose_1.Types.ObjectId.isValid(String(adminId))) {
+            filter.adminId = new mongoose_1.Types.ObjectId(String(adminId));
         }
-        if (studentId && Types.ObjectId.isValid(String(studentId))) {
-            filter.studentId = new Types.ObjectId(String(studentId));
+        if (studentId && mongoose_1.Types.ObjectId.isValid(String(studentId))) {
+            filter.studentId = new mongoose_1.Types.ObjectId(String(studentId));
         }
         const [items, total] = await Promise.all([
-            Enrollment.find(filter)
+            models_1.Enrollment.find(filter)
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)
@@ -391,7 +399,7 @@ export const listLateEnrollments = async (req, res, next) => {
                 .populate("studentId")
                 .populate("teacherId")
                 .populate("adminId"),
-            Enrollment.countDocuments(filter),
+            models_1.Enrollment.countDocuments(filter),
         ]);
         res.status(200).json({
             success: true,
@@ -410,14 +418,15 @@ export const listLateEnrollments = async (req, res, next) => {
         return;
     }
 };
+exports.listLateEnrollments = listLateEnrollments;
 /**
  * Accept Enrollment (status -> active)
  */
-export const enrollmentStatus = async (req, res, next) => {
+const enrollmentStatus = async (req, res, next) => {
     try {
         const enrollmentId = req.params.enrollmentId;
         const { status, reason } = req.body;
-        const enrollment = await Enrollment.findById(enrollmentId).populate({
+        const enrollment = await models_1.Enrollment.findById(enrollmentId).populate({
             path: "studentId",
             select: "name",
         });
@@ -425,26 +434,26 @@ export const enrollmentStatus = async (req, res, next) => {
             res.status(404).json({ success: false, message: "Enrollment not found" });
             return;
         }
-        if (status === EnrollmentStatus.ACTIVE) {
-            enrollment.status = EnrollmentStatus.ACTIVE;
-            enrollment.acceptedBy = new Types.ObjectId(`${req.user?.id}`);
+        if (status === enums_1.EnrollmentStatus.ACTIVE) {
+            enrollment.status = enums_1.EnrollmentStatus.ACTIVE;
+            enrollment.acceptedBy = new mongoose_1.Types.ObjectId(`${req.user?.id}`);
             enrollment.acceptedAt = new Date();
         }
-        else if (status === EnrollmentStatus.REJECTED) {
-            enrollment.status = EnrollmentStatus.REJECTED;
-            enrollment.rejectedBy = new Types.ObjectId(`${req.user?.id}`);
+        else if (status === enums_1.EnrollmentStatus.REJECTED) {
+            enrollment.status = enums_1.EnrollmentStatus.REJECTED;
+            enrollment.rejectedBy = new mongoose_1.Types.ObjectId(`${req.user?.id}`);
             enrollment.rejectionReason = reason;
             enrollment.rejectedAt = new Date();
         }
         await enrollment.save();
-        await Log.create({
-            action: LogAction.ENROLL,
+        await models_1.Log.create({
+            action: log_1.LogAction.ENROLL,
             studentId: enrollment.studentId?.id,
             enrollmentId: enrollment._id,
-            adminId: new Types.ObjectId(`${req.user?.id}`),
-            note: (status === EnrollmentStatus.ACTIVE &&
+            adminId: new mongoose_1.Types.ObjectId(`${req.user?.id}`),
+            note: (status === enums_1.EnrollmentStatus.ACTIVE &&
                 `تم قبول الدورة لطالب ${enrollment.studentId?.name} بواسطة ${req.user?.name}`) ||
-                (status === EnrollmentStatus.REJECTED &&
+                (status === enums_1.EnrollmentStatus.REJECTED &&
                     `تم رفض الدورة لمشرف ${enrollment.studentId?.name} بواسطة ${req.user?.name} بسبب ${reason}`),
         });
         res.status(200).json({
@@ -459,24 +468,25 @@ export const enrollmentStatus = async (req, res, next) => {
         return;
     }
 };
+exports.enrollmentStatus = enrollmentStatus;
 /**
  * Reject Enrollment (status -> dropout, set endDate now)
  */
-export const rejectEnrollment = async (req, res, next) => {
+const rejectEnrollment = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res
                 .status(400)
                 .json({ success: false, message: "Invalid enrollment id" });
             return;
         }
-        const enrollment = await Enrollment.findById(id);
+        const enrollment = await models_1.Enrollment.findById(id);
         if (!enrollment) {
             res.status(404).json({ success: false, message: "Enrollment not found" });
             return;
         }
-        enrollment.status = EnrollmentStatus.DROPOUT;
+        enrollment.status = enums_1.EnrollmentStatus.DROPOUT;
         enrollment.endDate = new Date();
         await enrollment.save();
         res.status(200).json({
@@ -491,31 +501,32 @@ export const rejectEnrollment = async (req, res, next) => {
         return;
     }
 };
+exports.rejectEnrollment = rejectEnrollment;
 /**
  * Close Enrollment as Graduated (status -> end + set student.graduated + status GRADUATED)
  * If you prefer: set status to END and also mark student as graduated
  */
-export const closeEnrollmentAsGraduated = async (req, res, next) => {
+const closeEnrollmentAsGraduated = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res
                 .status(400)
                 .json({ success: false, message: "Invalid enrollment id" });
             return;
         }
-        const enrollment = await Enrollment.findById(id);
+        const enrollment = await models_1.Enrollment.findById(id);
         if (!enrollment) {
             res.status(404).json({ success: false, message: "Enrollment not found" });
             return;
         }
         // Close enrollment
-        enrollment.status = EnrollmentStatus.GRADUATED;
+        enrollment.status = enums_1.EnrollmentStatus.GRADUATED;
         enrollment.endDate = new Date();
         await enrollment.save();
         // Mark student as graduated via method on Student model (if present)
         // or set fields directly:
-        const student = await Student.findById(enrollment.studentId);
+        const student = await models_1.Student.findById(enrollment.studentId);
         if (student) {
             student.graduated = new Date();
             // status auto-updates to GRADUATED in Student pre-save, per earlier model
@@ -533,17 +544,18 @@ export const closeEnrollmentAsGraduated = async (req, res, next) => {
         return;
     }
 };
-export const createEnrollmentLog = async (req, res, next) => {
+exports.closeEnrollmentAsGraduated = closeEnrollmentAsGraduated;
+const createEnrollmentLog = async (req, res, next) => {
     try {
         const studentId = req.params.studentId;
         const enrollmentId = req.params.enrollmentId;
         const { note } = req.body;
-        const log = await Log.create({
-            studentId: new Types.ObjectId(studentId),
-            enrollmentId: new Types.ObjectId(enrollmentId),
+        const log = await models_1.Log.create({
+            studentId: new mongoose_1.Types.ObjectId(studentId),
+            enrollmentId: new mongoose_1.Types.ObjectId(enrollmentId),
             note,
-            action: LogAction.ENROLL,
-            adminId: new Types.ObjectId(`${req.user?.id}`),
+            action: log_1.LogAction.ENROLL,
+            adminId: new mongoose_1.Types.ObjectId(`${req.user?.id}`),
         });
         res.status(201).json({
             success: true,
@@ -557,4 +569,4 @@ export const createEnrollmentLog = async (req, res, next) => {
         return;
     }
 };
-//# sourceMappingURL=enrollment.js.map
+exports.createEnrollmentLog = createEnrollmentLog;

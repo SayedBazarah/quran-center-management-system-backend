@@ -41,7 +41,7 @@ function parseListQuery(q: Request["query"]) {
 export const globalAnalytics: RequestHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   try {
     const { start, end } = req.query as { start?: string; end?: string };
@@ -205,7 +205,7 @@ export const globalAnalytics: RequestHandler = async (
 export const oldGlobalAnalytics: RequestHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   try {
     const { start, end, branchId } = req.query as {

@@ -1,11 +1,46 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
 // src/models/Enrollment.ts
-import { EnrollmentStatus, getEnumValues } from "@/types/enums";
-import mongoose, { Schema } from "mongoose";
-const EnrollmentSchema = new Schema({
+const enums_1 = require("../types/enums");
+const mongoose_1 = __importStar(require("mongoose"));
+const EnrollmentSchema = new mongoose_1.Schema({
     status: {
         type: String,
-        enum: getEnumValues(EnrollmentStatus),
-        default: EnrollmentStatus.PENDING,
+        enum: (0, enums_1.getEnumValues)(enums_1.EnrollmentStatus),
+        default: enums_1.EnrollmentStatus.PENDING,
     },
     startDate: {
         type: Date,
@@ -16,39 +51,39 @@ const EnrollmentSchema = new Schema({
     },
     // relations
     courseId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Course",
         required: [true, "Course is required"],
         index: true,
     },
     studentId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Student",
         required: [true, "Student is required"],
         index: true,
     },
     teacherId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Teacher",
         index: true,
     },
     adminId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Admin",
         index: true,
     },
     createdBy: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Admin",
         index: true,
     },
     // Admin only
     rejectionReason: {
-        type: Schema.Types.String,
+        type: mongoose_1.Schema.Types.String,
         maxlength: [200, "Address cannot exceed 200 characters"],
     },
     rejectedBy: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Admin",
         index: true,
     },
@@ -56,7 +91,7 @@ const EnrollmentSchema = new Schema({
         type: Date,
     },
     acceptedBy: {
-        type: Schema.Types.ObjectId,
+        type: mongoose_1.Schema.Types.ObjectId,
         ref: "Admin",
         index: true,
     },
@@ -98,12 +133,11 @@ EnrollmentSchema.methods.isActiveNow = function () {
     const now = new Date();
     const started = this.startDate ? now >= this.startDate : true;
     const notEnded = this.endDate ? now <= this.endDate : true;
-    return started && notEnded && this.status === EnrollmentStatus.ACTIVE;
+    return started && notEnded && this.status === enums_1.EnrollmentStatus.ACTIVE;
 };
-EnrollmentSchema.methods.close = async function (status = EnrollmentStatus.GRADUATED) {
+EnrollmentSchema.methods.close = async function (status = enums_1.EnrollmentStatus.GRADUATED) {
     this.status = status;
     this.endDate = new Date();
     await this.save();
 };
-export default mongoose.model("Enrollment", EnrollmentSchema);
-//# sourceMappingURL=enrollment.js.map
+exports.default = mongoose_1.default.model("Enrollment", EnrollmentSchema);

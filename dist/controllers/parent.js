@@ -1,6 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.listParents = exports.getParentByStudentId = exports.deleteParentById = exports.updateParentById = exports.createParent = void 0;
 // src/controllers/parentController.ts
-import { Parent, Student } from "@/models";
-import { Types } from "mongoose";
+const models_1 = require("../models");
+const mongoose_1 = require("mongoose");
 // Shared pagination/search parser
 function parseListQuery(q) {
     const page = Math.max(parseInt(String(q.page ?? "1"), 10), 1);
@@ -33,7 +36,7 @@ function parseListQuery(q) {
  * Create Parent
  * Requires studentId to link to an existing Student (1:1 relation in your model)
  */
-export const createParent = async (req, res, next) => {
+const createParent = async (req, res, next) => {
     try {
         const { name, email, phone, nationalId, nationalIdImg, birthDate, gender, relationship, studentId, } = req.body;
         // Validate required fields including studentId
@@ -45,17 +48,17 @@ export const createParent = async (req, res, next) => {
             return;
         }
         // Validate ObjectId and ensure student exists
-        if (!Types.ObjectId.isValid(studentId)) {
+        if (!mongoose_1.Types.ObjectId.isValid(studentId)) {
             res.status(400).json({ success: false, message: "Invalid studentId" });
             return;
         }
-        const student = await Student.findById(studentId);
+        const student = await models_1.Student.findById(studentId);
         if (!student) {
             res.status(404).json({ success: false, message: "Student not found" });
             return;
         }
         // Enforce 1:1: if another parent already linked to this student, block creation
-        const existingForStudent = await Parent.findOne({ studentId });
+        const existingForStudent = await models_1.Parent.findOne({ studentId });
         if (existingForStudent) {
             res.status(409).json({
                 success: false,
@@ -63,7 +66,7 @@ export const createParent = async (req, res, next) => {
             });
             return;
         }
-        const parent = await Parent.create({
+        const parent = await models_1.Parent.create({
             name,
             email,
             phone,
@@ -86,30 +89,31 @@ export const createParent = async (req, res, next) => {
         return;
     }
 };
+exports.createParent = createParent;
 /**
  * Edit Parent (by parent id)
  */
-export const updateParentById = async (req, res, next) => {
+const updateParentById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res.status(400).json({ success: false, message: "Invalid parent id" });
             return;
         }
         const { name, email, phone, nationalId, nationalIdImg, birthDate, gender, relationship, studentId, } = req.body;
         // Optional: allow re-linking to a different student, still validate constraints
         if (typeof studentId !== "undefined") {
-            if (!Types.ObjectId.isValid(studentId)) {
+            if (!mongoose_1.Types.ObjectId.isValid(studentId)) {
                 res.status(400).json({ success: false, message: "Invalid studentId" });
                 return;
             }
-            const student = await Student.findById(studentId);
+            const student = await models_1.Student.findById(studentId);
             if (!student) {
                 res.status(404).json({ success: false, message: "Student not found" });
                 return;
             }
             // Ensure no other parent uses this studentId
-            const conflict = await Parent.findOne({ studentId, _id: { $ne: id } });
+            const conflict = await models_1.Parent.findOne({ studentId, _id: { $ne: id } });
             if (conflict) {
                 res.status(409).json({
                     success: false,
@@ -118,7 +122,7 @@ export const updateParentById = async (req, res, next) => {
                 return;
             }
         }
-        const updated = await Parent.findByIdAndUpdate(id, {
+        const updated = await models_1.Parent.findByIdAndUpdate(id, {
             $set: {
                 ...(typeof name !== "undefined" && { name }),
                 ...(typeof email !== "undefined" && { email }),
@@ -147,22 +151,23 @@ export const updateParentById = async (req, res, next) => {
         return;
     }
 };
+exports.updateParentById = updateParentById;
 /**
  * Delete Parent (by parent id)
  */
-export const deleteParentById = async (req, res, next) => {
+const deleteParentById = async (req, res, next) => {
     try {
         const id = req.params.id;
-        if (!Types.ObjectId.isValid(id)) {
+        if (!mongoose_1.Types.ObjectId.isValid(id)) {
             res.status(400).json({ success: false, message: "Invalid parent id" });
             return;
         }
-        const existing = await Parent.findById(id);
+        const existing = await models_1.Parent.findById(id);
         if (!existing) {
             res.status(404).json({ success: false, message: "Parent not found" });
             return;
         }
-        await Parent.deleteOne({ _id: id });
+        await models_1.Parent.deleteOne({ _id: id });
         res.status(200).json({
             success: true,
             message: "Parent deleted successfully",
@@ -174,17 +179,18 @@ export const deleteParentById = async (req, res, next) => {
         return;
     }
 };
+exports.deleteParentById = deleteParentById;
 /**
  * Details by studentId (NOT by parentId)
  */
-export const getParentByStudentId = async (req, res, next) => {
+const getParentByStudentId = async (req, res, next) => {
     try {
         const studentId = req.params.studentId;
-        if (!Types.ObjectId.isValid(studentId)) {
+        if (!mongoose_1.Types.ObjectId.isValid(studentId)) {
             res.status(400).json({ success: false, message: "Invalid studentId" });
             return;
         }
-        const parent = await Parent.findOne({ studentId }).populate("studentId");
+        const parent = await models_1.Parent.findOne({ studentId }).populate("studentId");
         if (!parent) {
             res
                 .status(404)
@@ -202,24 +208,25 @@ export const getParentByStudentId = async (req, res, next) => {
         return;
     }
 };
+exports.getParentByStudentId = getParentByStudentId;
 /**
  * List Parents (pagination + search)
  */
-export const listParents = async (req, res, next) => {
+const listParents = async (req, res, next) => {
     try {
         const { page, limit, skip, filter, sort } = parseListQuery(req.query);
         // Optional filter: by studentId
         if (req.query.studentId &&
-            Types.ObjectId.isValid(String(req.query.studentId))) {
-            filter.studentId = new Types.ObjectId(String(req.query.studentId));
+            mongoose_1.Types.ObjectId.isValid(String(req.query.studentId))) {
+            filter.studentId = new mongoose_1.Types.ObjectId(String(req.query.studentId));
         }
         const [items, total] = await Promise.all([
-            Parent.find(filter)
+            models_1.Parent.find(filter)
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)
                 .populate("studentId"),
-            Parent.countDocuments(filter),
+            models_1.Parent.countDocuments(filter),
         ]);
         res.status(200).json({
             success: true,
@@ -238,4 +245,4 @@ export const listParents = async (req, res, next) => {
         return;
     }
 };
-//# sourceMappingURL=parent.js.map
+exports.listParents = listParents;

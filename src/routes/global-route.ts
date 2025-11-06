@@ -24,9 +24,4 @@ routes.use("/parents", ParentRouter);
 routes.use("/students", StudentRouter);
 routes.use("/teachers", TeacherRouter);
 
-// Health check
-routes.get("/check-health", (req, res) => {
-  res.json({ message: "OK " });
-});
-
 export default routes;

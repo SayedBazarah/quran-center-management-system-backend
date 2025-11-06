@@ -1,11 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // src/routes/courseRoutes.ts
-import { Router } from "express";
-import { asyncHandler } from "@utils/asyncHandler";
-import { createCourse, listCourses, updateCourseById, deleteCourseById, } from "@/controllers/course";
-const CourseRouter = Router();
-CourseRouter.post("/", asyncHandler(createCourse));
-CourseRouter.get("/", asyncHandler(listCourses));
-CourseRouter.patch("/:id", asyncHandler(updateCourseById));
-CourseRouter.delete("/:id", asyncHandler(deleteCourseById));
-export default CourseRouter;
-//# sourceMappingURL=course.js.map
+const express_1 = require("express");
+const course_1 = require("../controllers/course");
+const CourseRouter = (0, express_1.Router)();
+CourseRouter.post("/", course_1.createCourse);
+CourseRouter.get("/", course_1.listCourses);
+CourseRouter.patch("/:id", course_1.updateCourseById);
+CourseRouter.delete("/:id", course_1.deleteCourseById);
+exports.default = CourseRouter;

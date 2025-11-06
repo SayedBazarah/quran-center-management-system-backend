@@ -1,18 +1,23 @@
-import "dotenv/config";
-import app from "./app";
-import { env } from "./env";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+require("dotenv/config");
+const app_1 = __importDefault(require("./app"));
+const env_1 = require("./env");
 // import { initRedis } from "./config/redis";
-import connectDB from "./config/mongodb";
-import { seedSuperAdmin } from "./bootstrap/seedSuperAdmin";
-import { initBaseFolders } from "./utils/file";
-import { scheduleJobs } from "./jobs/schedule";
-const port = env.port;
-const server = app.listen(port, async () => {
-    await connectDB();
+const mongodb_1 = __importDefault(require("./config/mongodb"));
+const seedSuperAdmin_1 = require("./bootstrap/seedSuperAdmin");
+const file_1 = require("./utils/file");
+const schedule_1 = require("./jobs/schedule");
+const port = env_1.env.port;
+const server = app_1.default.listen(port, async () => {
+    await (0, mongodb_1.default)();
     // await initRedis();
-    await seedSuperAdmin();
-    scheduleJobs();
-    await initBaseFolders();
+    await (0, seedSuperAdmin_1.seedSuperAdmin)();
+    (0, schedule_1.scheduleJobs)();
+    await (0, file_1.initBaseFolders)();
     /* eslint-disable no-console */
     console.log(`Listening: http://localhost:${port}`);
     /* eslint-enable no-console */
@@ -35,4 +40,3 @@ const shutdown = async () => {
 ["SIGINT", "SIGTERM", "SIGQUIT"].forEach((signal) => {
     process.on(signal, shutdown);
 });
-//# sourceMappingURL=index.js.map

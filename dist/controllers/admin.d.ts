@@ -1,4 +1,4 @@
-import { CreateAdminHandler } from "@/types/handlers/admin.handlers";
+import { CreateAdminHandler } from "../src/types/handlers/admin.handlers";
 import { RequestHandler } from "express";
 /**
  * Create Admin

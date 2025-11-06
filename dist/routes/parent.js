@@ -1,17 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // src/routes/parentRoutes.ts
-import { Router } from "express";
-import { asyncHandler } from "@utils/asyncHandler";
-import { createParent, updateParentById, deleteParentById, getParentByStudentId, listParents, } from "@/controllers";
-const ParentRouter = Router();
+const express_1 = require("express");
+const controllers_1 = require("../controllers");
+const ParentRouter = (0, express_1.Router)();
 // POST /api/v1/parents
-ParentRouter.post("/", asyncHandler(createParent));
+ParentRouter.post("/", controllers_1.createParent);
 // PATCH /api/v1/parents/:id
-ParentRouter.patch("/:id", asyncHandler(updateParentById));
+ParentRouter.patch("/:id", controllers_1.updateParentById);
 // DELETE /api/v1/parents/:id
-ParentRouter.delete("/:id", asyncHandler(deleteParentById));
+ParentRouter.delete("/:id", controllers_1.deleteParentById);
 // GET /api/v1/parents/by-student/:studentId
-ParentRouter.get("/by-student/:studentId", asyncHandler(getParentByStudentId));
+ParentRouter.get("/by-student/:studentId", controllers_1.getParentByStudentId);
 // GET /api/v1/parents
-ParentRouter.get("/", asyncHandler(listParents));
-export default ParentRouter;
-//# sourceMappingURL=parent.js.map
+ParentRouter.get("/", controllers_1.listParents);
+exports.default = ParentRouter;

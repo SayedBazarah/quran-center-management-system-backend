@@ -1,12 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.seedPermissions = seedPermissions;
 // src/bootstrap/seedPermissions.ts
-import { Permission } from "@/models";
-import { PERMISSION_SEEDS } from "./permissionSeeds";
-export async function seedPermissions() {
+const models_1 = require("../models");
+const permissionSeeds_1 = require("./permissionSeeds");
+async function seedPermissions() {
     const codes = [];
-    for (const p of PERMISSION_SEEDS) {
-        const doc = await Permission.findOneAndUpdate({ code: p.code }, { $set: { name: p.name, description: p.description } }, { new: true, upsert: true, setDefaultsOnInsert: true });
+    for (const p of permissionSeeds_1.PERMISSION_SEEDS) {
+        const doc = await models_1.Permission.findOneAndUpdate({ code: p.code }, { $set: { name: p.name, description: p.description } }, { new: true, upsert: true, setDefaultsOnInsert: true });
         codes.push(doc.code);
     }
     return codes;
 }
-//# sourceMappingURL=seedPermissions.js.map

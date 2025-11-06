@@ -1,7 +1,7 @@
 // src/controllers/branchController.ts
+import { Branch } from "@/models";
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
-import Branch from "@models/branch";
 
 // Helpers
 function parseListQuery(q: Request["query"]) {

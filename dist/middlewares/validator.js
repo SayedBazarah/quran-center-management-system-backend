@@ -1,7 +1,10 @@
-import { matchedData, validationResult, } from "express-validator";
-import { ValidationError } from "@/errors";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.globalValidatorMiddleware = void 0;
+const express_validator_1 = require("express-validator");
+const errors_1 = require("../errors");
 // Use the official formatter fields instead of accessing union properties
-const resultWithFormatter = validationResult.withDefaults({
+const resultWithFormatter = express_validator_1.validationResult.withDefaults({
     formatter: (e) => ({
         field: e.param, // param is the documented name
         message: String(e.msg),
@@ -9,18 +12,18 @@ const resultWithFormatter = validationResult.withDefaults({
         location: e.location,
     }),
 });
-export const globalValidatorMiddleware = (req, _res, next) => {
+const globalValidatorMiddleware = (req, _res, next) => {
     const errors = resultWithFormatter(req);
     if (!errors.isEmpty()) {
-        return next(new ValidationError("Validation failed", errors.array()));
+        return next(new errors_1.ValidationError("Validation failed", errors.array()));
     }
     // Only assign after ensuring no errors
     // Body: overwrite with validated fields
-    req.body = matchedData(req, { locations: ["body"] });
+    req.body = (0, express_validator_1.matchedData)(req, { locations: ["body"] });
     // Params and query are read-only on req; attach to custom properties via declaration merging
     // Add types: declare global { namespace Express { interface Request { validatedParams?: any; validatedQuery?: any; } } }
-    req.validatedParams = matchedData(req, { locations: ["params"] });
-    req.validatedQuery = matchedData(req, { locations: ["query"] });
+    req.validatedParams = (0, express_validator_1.matchedData)(req, { locations: ["params"] });
+    req.validatedQuery = (0, express_validator_1.matchedData)(req, { locations: ["query"] });
     return next();
 };
-//# sourceMappingURL=validator.js.map
+exports.globalValidatorMiddleware = globalValidatorMiddleware;

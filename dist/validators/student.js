@@ -1,14 +1,17 @@
-import { globalValidatorMiddleware } from "@/middlewares";
-import { getEnumValues, StudentStatus } from "@/types/enums";
-import { body, param } from "express-validator";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.reactiveStudent = exports.fireStudent = exports.rejectStudent = exports.updateStudentStatus = exports.studentDetails = exports.deleteStudent = exports.updateStudent = exports.createStudent = void 0;
+const middlewares_1 = require("../middlewares");
+const enums_1 = require("../types/enums");
+const express_validator_1 = require("express-validator");
 const commonAttributes = [
-    body("email").optional().isEmail().withMessage("Email is invalid"),
-    body("name")
+    (0, express_validator_1.body)("email").optional().isEmail().withMessage("Email is invalid"),
+    (0, express_validator_1.body)("name")
         .isString()
         .withMessage("Name must be a string")
         .isLength({ min: 2 })
         .withMessage("Name must be at least 2 characters long"),
-    body("phone")
+    (0, express_validator_1.body)("phone")
         .isString()
         .withMessage("Phone number is invalid")
         .isLength({
@@ -16,53 +19,52 @@ const commonAttributes = [
         max: 14,
     })
         .withMessage("Phone number must be 10 digits"),
-    body("nationalId")
+    (0, express_validator_1.body)("nationalId")
         .isString()
         .withMessage("National ID must be a string")
         .isLength({ min: 14, max: 14 })
         .withMessage("National ID must be at 14 characters long"),
-    body("gender")
+    (0, express_validator_1.body)("gender")
         .isString()
         .withMessage("Gender must be a string")
         .isIn(["male", "female"])
         .withMessage("Gender must be male, female, or other"),
-    body("branchId").isString().withMessage("BranchId must be a string"),
-    body("adminId").isString().withMessage("adminId must be a string"),
-    body("birthDate").isString().withMessage("BithDate must be a string"),
-    body("address").isString().withMessage("Address must be a string"),
+    (0, express_validator_1.body)("branchId").isString().withMessage("BranchId must be a string"),
+    (0, express_validator_1.body)("adminId").isString().withMessage("adminId must be a string"),
+    (0, express_validator_1.body)("birthDate").isString().withMessage("BithDate must be a string"),
+    (0, express_validator_1.body)("address").isString().withMessage("Address must be a string"),
 ];
-export const createStudent = [...commonAttributes, globalValidatorMiddleware];
-export const updateStudent = [
-    param("id").isMongoId(),
+exports.createStudent = [...commonAttributes, middlewares_1.globalValidatorMiddleware];
+exports.updateStudent = [
+    (0, express_validator_1.param)("id").isMongoId(),
     ...commonAttributes,
-    globalValidatorMiddleware,
+    middlewares_1.globalValidatorMiddleware,
 ];
-export const deleteStudent = [
-    param("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
-    globalValidatorMiddleware,
+exports.deleteStudent = [
+    (0, express_validator_1.param)("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
+    middlewares_1.globalValidatorMiddleware,
 ];
-export const studentDetails = [
-    param("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
-    globalValidatorMiddleware,
+exports.studentDetails = [
+    (0, express_validator_1.param)("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
+    middlewares_1.globalValidatorMiddleware,
 ];
-export const updateStudentStatus = [
-    param("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
-    body("status")
-        .isIn(getEnumValues(StudentStatus))
+exports.updateStudentStatus = [
+    (0, express_validator_1.param)("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
+    (0, express_validator_1.body)("status")
+        .isIn((0, enums_1.getEnumValues)(enums_1.StudentStatus))
         .withMessage("Invalid status"),
-    body("reason").optional().isString().withMessage("Reason must be a string"),
-    globalValidatorMiddleware,
+    (0, express_validator_1.body)("reason").optional().isString().withMessage("Reason must be a string"),
+    middlewares_1.globalValidatorMiddleware,
 ];
-export const rejectStudent = [
-    param("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
-    globalValidatorMiddleware,
+exports.rejectStudent = [
+    (0, express_validator_1.param)("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
+    middlewares_1.globalValidatorMiddleware,
 ];
-export const fireStudent = [
-    param("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
-    globalValidatorMiddleware,
+exports.fireStudent = [
+    (0, express_validator_1.param)("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
+    middlewares_1.globalValidatorMiddleware,
 ];
-export const reactiveStudent = [
-    param("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
-    globalValidatorMiddleware,
+exports.reactiveStudent = [
+    (0, express_validator_1.param)("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
+    middlewares_1.globalValidatorMiddleware,
 ];
-//# sourceMappingURL=student.js.map
