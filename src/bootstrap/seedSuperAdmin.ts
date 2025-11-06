@@ -5,15 +5,6 @@ import { PERMISSION_SEEDS } from "./permissionSeeds";
 import { Admin, Branch, Permission, Role } from "@/models";
 import { env } from "@/env";
 
-const SUPER_ROLE_NAME = process.env.SUPER_ROLE_NAME || "Super Admin";
-const SUPER_ADMIN_USERNAME = process.env.SUPER_ADMIN_USERNAME || "superadmin";
-const SUPER_ADMIN_EMAIL =
-  process.env.SUPER_ADMIN_EMAIL || "superadmin@example.com";
-const SUPER_ADMIN_PHONE = process.env.SUPER_ADMIN_PHONE || "0000000000";
-const SUPER_ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD || "ChangeMe!123"; // override in prod
-const SUPER_ADMIN_NATIONAL_ID =
-  process.env.SUPER_ADMIN_NATIONAL_ID || "11111111111111"; // override in prod
-
 export async function seedPermissions(): Promise<string[]> {
   const codes: string[] = [];
   for (const p of PERMISSION_SEEDS) {
@@ -36,8 +27,10 @@ export async function seedSuperAdminRole(): Promise<{
 
   // Upsert Super Admin role with full permissions
   const role = await Role.findOneAndUpdate(
-    { name: SUPER_ROLE_NAME },
-    { $set: { name: SUPER_ROLE_NAME, isSystem: true, permissions: permIds } },
+    { _id: env.admin.roleId },
+    {
+      $set: { name: env.admin.roleName, isSystem: true, permissions: permIds },
+    },
     { new: true, upsert: true, setDefaultsOnInsert: true }
   );
 
@@ -47,7 +40,7 @@ export async function seedSuperAdminRole(): Promise<{
 export async function seedSuperAdminUser(
   roleId: Types.ObjectId
 ): Promise<void> {
-  let admin = await Admin.findOne({ username: SUPER_ADMIN_USERNAME }).select(
+  let admin = await Admin.findOne({ username: env.admin.username }).select(
     "+password"
   );
   if (!admin) {
@@ -87,7 +80,7 @@ export async function seedSuperAdminUser(
     isSystem: true,
   };
   if (!admin.password) {
-    setOps.password = await bcrypt.hash(SUPER_ADMIN_PASSWORD, 12);
+    setOps.password = await bcrypt.hash(env.admin.password, 12);
   }
   await Admin.updateOne({ _id: admin._id }, { $set: setOps });
 }

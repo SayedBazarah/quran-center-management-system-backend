@@ -60,10 +60,10 @@ exports.env = {
         email: process.env.ADMIN_EMAIL || "superadmin@example.com",
         phone: process.env.ADMIN_PHONE || "0000000000",
         nationalId: process.env.ADMIN_NATIONAL_ID || "11111111111111",
-        avatar: process.env.ADMIN_AVATAR || "",
         password: process.env.ADMIN_PASSWORD || "ChangeMe!123",
         gender: process.env.ADMIN_GENDER || "male",
         roleId: process.env.ADMIN_ROLE_ID || "68ff0ffa9cee4a56fc5fa464",
+        roleName: process.env.ADMIN_ROLE_NAME || "مدير النظام",
         branchId: process.env.ADMIN_BRANCH_ID || "68ff0ffa9cee4a56fc5fa464",
     },
 };

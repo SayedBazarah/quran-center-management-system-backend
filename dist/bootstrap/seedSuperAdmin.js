@@ -12,12 +12,6 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const permissionSeeds_1 = require("./permissionSeeds");
 const models_1 = require("../models");
 const env_1 = require("../env");
-const SUPER_ROLE_NAME = process.env.SUPER_ROLE_NAME || "Super Admin";
-const SUPER_ADMIN_USERNAME = process.env.SUPER_ADMIN_USERNAME || "superadmin";
-const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL || "superadmin@example.com";
-const SUPER_ADMIN_PHONE = process.env.SUPER_ADMIN_PHONE || "0000000000";
-const SUPER_ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD || "ChangeMe!123"; // override in prod
-const SUPER_ADMIN_NATIONAL_ID = process.env.SUPER_ADMIN_NATIONAL_ID || "11111111111111"; // override in prod
 async function seedPermissions() {
     const codes = [];
     for (const p of permissionSeeds_1.PERMISSION_SEEDS) {
@@ -31,26 +25,39 @@ async function seedSuperAdminRole() {
     const allPerms = await models_1.Permission.find({}, { _id: 1 }).lean();
     const permIds = allPerms.map((p) => p._id);
     // Upsert Super Admin role with full permissions
-    const role = await models_1.Role.findOneAndUpdate({ name: SUPER_ROLE_NAME }, { $set: { name: SUPER_ROLE_NAME, isSystem: true, permissions: permIds } }, { new: true, upsert: true, setDefaultsOnInsert: true });
+    const role = await models_1.Role.findOneAndUpdate({ _id: env_1.env.admin.roleId }, {
+        $set: { name: env_1.env.admin.roleName, isSystem: true, permissions: permIds },
+    }, { new: true, upsert: true, setDefaultsOnInsert: true });
     return { roleId: role._id };
 }
 async function seedSuperAdminUser(roleId) {
-    let admin = await models_1.Admin.findOne({ username: SUPER_ADMIN_USERNAME }).select("+password");
+    let admin = await models_1.Admin.findOne({ username: env_1.env.admin.username }).select("+password");
     if (!admin) {
         await models_1.Admin.create({
             id: env_1.env.admin.id,
             _id: env_1.env.admin.id,
             name: "Super Admin",
-            username: SUPER_ADMIN_USERNAME,
-            email: SUPER_ADMIN_EMAIL,
-            phone: SUPER_ADMIN_PHONE,
-            nationalId: SUPER_ADMIN_NATIONAL_ID,
-            password: SUPER_ADMIN_PASSWORD,
+            username: env_1.env.admin.username,
+            email: env_1.env.admin.email,
+            phone: env_1.env.admin.phone,
+            nationalId: env_1.env.admin.nationalId,
+            password: env_1.env.admin.password,
+            gender: "male",
+            nationalIdImg: "https://multisystem.com",
             roleId,
             isActive: true,
             isSystem: true,
         });
         return;
+    }
+    else {
+        const branches = await models_1.Branch.find({}).select("_id");
+        const branchIds = branches.map((branch) => branch._id);
+        console.log({
+            branchIds,
+            roleId,
+        });
+        await models_1.Admin.findOneAndUpdate({ _id: admin._id }, { $set: { isActive: true, isSystem: true, roleId, branchIds } });
     }
     // Ensure role and flags are correct; only set password if missing
     const setOps = {
@@ -59,7 +66,7 @@ async function seedSuperAdminUser(roleId) {
         isSystem: true,
     };
     if (!admin.password) {
-        setOps.password = await bcryptjs_1.default.hash(SUPER_ADMIN_PASSWORD, 12);
+        setOps.password = await bcryptjs_1.default.hash(env_1.env.admin.password, 12);
     }
     await models_1.Admin.updateOne({ _id: admin._id }, { $set: setOps });
 }
