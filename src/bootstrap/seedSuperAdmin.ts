@@ -2,7 +2,7 @@
 import bcrypt from "bcryptjs";
 import { Types } from "mongoose";
 import { PERMISSION_SEEDS } from "./permissionSeeds";
-import { Admin, Permission, Role } from "@/models";
+import { Admin, Branch, Permission, Role } from "@/models";
 import { env } from "@/env";
 
 const SUPER_ROLE_NAME = process.env.SUPER_ROLE_NAME || "Super Admin";
@@ -55,16 +55,29 @@ export async function seedSuperAdminUser(
       id: env.admin.id,
       _id: env.admin.id,
       name: "Super Admin",
-      username: SUPER_ADMIN_USERNAME,
-      email: SUPER_ADMIN_EMAIL,
-      phone: SUPER_ADMIN_PHONE,
-      nationalId: SUPER_ADMIN_NATIONAL_ID,
-      password: SUPER_ADMIN_PASSWORD,
+      username: env.admin.username,
+      email: env.admin.email,
+      phone: env.admin.phone,
+      nationalId: env.admin.nationalId,
+      password: env.admin.password,
+      gender: "male",
+      nationalIdImg: "https://multisystem.com",
       roleId,
       isActive: true,
       isSystem: true,
     });
     return;
+  } else {
+    const branches = await Branch.find({}).select("_id");
+    const branchIds = branches.map((branch) => branch._id);
+    console.log({
+      branchIds,
+      roleId,
+    });
+    await Admin.findOneAndUpdate(
+      { _id: admin._id },
+      { $set: { isActive: true, isSystem: true, roleId, branchIds } }
+    );
   }
 
   // Ensure role and flags are correct; only set password if missing
