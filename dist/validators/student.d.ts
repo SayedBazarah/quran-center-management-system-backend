@@ -1,0 +1,9 @@
+export declare const createStudent: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+export declare const updateStudent: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+export declare const deleteStudent: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+export declare const studentDetails: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+export declare const updateStudentStatus: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+export declare const rejectStudent: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+export declare const fireStudent: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+export declare const reactiveStudent: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+//# sourceMappingURL=student.d.ts.map

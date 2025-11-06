@@ -1,0 +1,98 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "ES2022", // Latest stable ECMAScript target (better than ES2020)
+    "lib": ["ES2022"], // Removed DOM (not needed for Node.js backend)
+    "module": "ESNext", // Use ESNext for modern import/export (not CommonJS)
+    "moduleResolution": "node", // Node.js-style module resolution
+    "jsx": "preserve", // Not needed for backend, but safe to keep if shared config
+
+    /* Module System */
+    "esModuleInterop": true, // Allows default imports from CommonJS modules
+    "allowSyntheticDefaultImports": true, // Allows `import React from "react"` style
+    "resolveJsonModule": true, // Allow importing .json files
+    "isolatedModules": true, // Ensures each file can be safely transpiled alone
+
+    /* Type Checking - Strict Mode */
+    "strict": true, // Enables all strict type-checking options
+    "noImplicitAny": true, // Error on expressions with implied 'any' type
+    "strictNullChecks": true, // Distinguish between null/undefined
+    "strictFunctionTypes": true, // Stricter function type checks
+    "strictBindCallApply": true, // Check bind, call, apply methods
+    "strictPropertyInitialization": true, //   class properties are initialized
+    "noImplicitThis": true, // Error on 'this' with implied 'any' type
+    "alwaysStrict": true, // Parse in strict mode and emit "use strict"
+
+    /* Additional Checks */
+    "noUnusedLocals": true, // Report errors on unused local variables
+    "noUnusedParameters": true, // Changed to true for cleaner code
+    "noImplicitReturns": true, // Report error when not all code paths return a value
+    "noFallthroughCasesInSwitch": true, // Report errors for fallthrough cases in switch
+    "noUncheckedIndexedAccess": true, // Add undefined to index signature results
+    "noImplicitOverride": true, // Ensure overriding members are marked with 'override'
+    "allowUnusedLabels": false, // Report errors on unused labels
+    "allowUnreachableCode": false, // Report errors on unreachable code
+
+    /* Emit */
+    "declaration": true, // Generate .d.ts files
+    "declarationMap": true, // Generate sourcemap for .d.ts files
+    "sourceMap": true, // Generate .map files for debugging
+    "outDir": "./dist", // Output directory for compiled files
+    "rootDir": "./src", // Root directory of source files
+    "removeComments": false, // Keep comments in compiled output
+    "noEmit": false, // Actually emit files (needed for build)
+    "importHelpers": true, // Import helper functions from tslib
+    "downlevelIteration": true, // Provide full support for iterables
+
+    /* Interop Constraints */
+    "forceConsistentCasingInFileNames": true, // Ensure consistent casing in imports
+    "skipLibCheck": true, // Skip type checking of declaration files
+
+    /* Path Mapping */
+    "baseUrl": "./", // Base directory for non-relative imports
+    "paths": {
+      "@/*": ["src/*"], // Alias for src directory
+      "@config/*": ["src/config/*"], // Specific aliases for better organization
+      "@models/*": ["src/models/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@routes/*": ["src/routes/*"],
+      "@middlewares/*": ["src/middlewares/*"],
+      "@utils/*": ["src/utils/*"],
+      "@validators/*": ["src/validators/*"],
+      "@types/*": ["src/types/*"],
+      "@errors/*": ["src/errors/*"]
+    },
+
+    /* Advanced */
+    "experimentalDecorators": true, // Enable decorators (useful for future ORM/DI)
+    "emitDecoratorMetadata": true, // Emit design-type metadata for decorators
+    "incremental": true, // Enable incremental compilation
+    "tsBuildInfoFile": "./dist/.tsbuildinfo", // Specify file to store incremental info
+
+    /* Type Definitions */
+    "types": ["node"], // Include type definitions
+    "typeRoots": ["./node_modules/@types", "./src/types"] // Type definition locations
+  },
+
+  /* ts-node Configuration (for development) */
+  "ts-node": {
+    "require": ["tsconfig-paths/register"], // Enable path mapping in ts-node
+    "transpileOnly": true, // Faster compilation (skip type checking)
+    "files": true, // Use files/include/exclude from tsconfig
+    "compilerOptions": {
+      "module": "CommonJS" // ts-node needs CommonJS
+    }
+  },
+
+  /* File Inclusion/Exclusion */
+  "include": [
+    "src/**/*", // Include all files in src
+    "src/**/*.json" // Include JSON files
+  ],
+  "exclude": [
+    "node_modules", // Exclude dependencies
+    "dist", // Exclude compiled output
+    "**/*.spec.ts", // Exclude test files from build
+    "**/*.test.ts"
+  ]
+}

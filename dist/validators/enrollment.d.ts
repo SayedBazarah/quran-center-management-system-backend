@@ -1,0 +1,6 @@
+export declare const createEnrollment: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+export declare const updateEnrollment: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+export declare const deleteEnrollment: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+export declare const acceptEnrollment: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+export declare const createEnrollmentLog: (import("express").RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>> | import("express-validator").ValidationChain)[];
+//# sourceMappingURL=enrollment.d.ts.map
