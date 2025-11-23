@@ -74,10 +74,6 @@ export const createStudent = async (
       adminId, // creator admin (optional trace)
     } = req.body;
 
-    if (!req.file) {
-      res.status(400).json({ success: false, message: "No file uploaded" });
-      return;
-    }
 
     if (branchId && !Types.ObjectId.isValid(branchId)) {
       res.status(400).json({ success: false, message: "Invalid branchId" });
@@ -96,7 +92,6 @@ export const createStudent = async (
       }
     }
 
-    const { filename } = await saveMulterFile(MediaCategory.Student, req.file);
 
     const student = await Student.create({
       name,
@@ -110,13 +105,12 @@ export const createStudent = async (
       adminId,
       status: StudentStatus.PENDING,
       createdBy: req.user?.id,
-      nationalIdImg: `${env.media}/${MediaCategory.Student}/${filename}`,
     });
 
     await Log.create({
       studentId: student._id,
       adminId: new Types.ObjectId(`${req.user?.id}`),
-      note: `تم تسجيل بيانات الطالب بواسطة  ${req.user?.name}`,
+      note: `تم تسجيل بيانات الطالب بواسطة ${req.user?.name}`,
     });
 
     res.status(201).json({
@@ -530,7 +524,6 @@ export const updateStudentStatus = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    console.log("--- Update student status ----");
     const { id } = req.params;
     const { status, reason } = req.body;
     const update: any = { status };
@@ -565,8 +558,8 @@ export const updateStudentStatus = async (
       adminId: req.user?.id,
       note:
         status === "accepted"
-          ? "تم قبول الطالب"
-          : `تم رفض الطالب، بسبب ${reason}`,
+          ? `تم قبول الطالب ${updated.name}`
+          : `تم رفض الطالب ${updated.name}، بسبب ${reason}`,
       changes: [
         { field: "status", from: "pending", to: status },
         ...(reason ? [{ field: "rejectionReason", from: "", to: reason }] : []),

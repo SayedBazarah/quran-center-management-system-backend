@@ -9,10 +9,10 @@ function toSchemaCode(code: string) {
 
 export async function seedSuperAdminPermissions(): Promise<void> {
   const role = await Role.findOneAndUpdate(
-    { name: process.env.SUPER_ROLE_NAME || "Super Admin" },
+    { name: process.env.SUPER_ROLE_NAME || "مدير النظام" },
     {
       $set: {
-        name: process.env.SUPER_ROLE_NAME || "Super Admin",
+        name: process.env.SUPER_ROLE_NAME || "مدير النظام",
         isSystem: true,
       },
     },

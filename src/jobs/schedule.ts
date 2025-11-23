@@ -5,7 +5,7 @@ import { markLateEnrollmentsJob } from "./tasks/markLateEnrollments";
 export function scheduleJobs() {
   // Run every day at 02:00 local server time
   cron.schedule(
-    "* 0 2 * * *",
+    "0 0 */12 * * *",
     async () => {
       try {
         console.log("[cron] started");

@@ -6,7 +6,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 export interface IPermission extends Document {
   code: string;
   name: string;
-  roleId: Types.ObjectId;
+  order: number;
 }
 
 /**
@@ -25,6 +25,10 @@ const PermissionSchema = new Schema<IPermission>(
       type: String,
       required: [true, "Permission name is required"],
       trim: true,
+    },
+    order: {  
+      type: Number,
+      default: 0,
     },
   },
   {

@@ -4,13 +4,12 @@ import { Types } from "mongoose";
 import { PERMISSION_SEEDS } from "./permissionSeeds";
 import { Admin, Branch, Permission, Role } from "@/models";
 import { env } from "@/env";
-
 export async function seedPermissions(): Promise<string[]> {
   const codes: string[] = [];
   for (const p of PERMISSION_SEEDS) {
     const doc = await Permission.findOneAndUpdate(
       { code: p.code },
-      { $set: { name: p.name, description: p.description, isSystem: true } },
+      { $set: { name: p.name,order: p.order, description: p.description } },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
     codes.push(doc.code);
@@ -28,9 +27,7 @@ export async function seedSuperAdminRole(): Promise<{
   // Upsert Super Admin role with full permissions
   const role = await Role.findOneAndUpdate(
     { _id: env.admin.roleId },
-    {
-      $set: { name: env.admin.roleName, isSystem: true, permissions: permIds },
-    },
+    { $set: { name: env.admin.roleName, isSystem: true, permissions: permIds } },
     { new: true, upsert: true, setDefaultsOnInsert: true }
   );
 
@@ -43,6 +40,8 @@ export async function seedSuperAdminUser(
   let admin = await Admin.findOne({ username: env.admin.username }).select(
     "+password"
   );
+      const branches = await Branch.find({}).select("_id");
+    const branchIds = branches.map((branch) => branch._id);
   if (!admin) {
     await Admin.create({
       id: env.admin.id,
@@ -54,14 +53,14 @@ export async function seedSuperAdminUser(
       nationalId: env.admin.nationalId,
       password: env.admin.password,
       gender: "male",
-      roleId,
       isActive: true,
       isSystem: true,
+      roleId,
+      branchIds,
     });
     return;
   } else {
-    const branches = await Branch.find({}).select("_id");
-    const branchIds = branches.map((branch) => branch._id);
+
     await Admin.findOneAndUpdate(
       { _id: admin._id },
       { $set: { isActive: true, isSystem: true, roleId, branchIds } }
@@ -84,6 +83,7 @@ export async function seedSuperAdminUser(
 export async function seedSuperAdmin(): Promise<void> {
   await Permission.init(); // ensure indexes before upserts
   await seedPermissions();
+  console.log("seedSuperAdmin")
   const { roleId } = await seedSuperAdminRole();
   await seedSuperAdminUser(roleId);
 }

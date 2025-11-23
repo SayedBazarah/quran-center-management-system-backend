@@ -47,12 +47,12 @@ export const createAdmin = [
 export const updateAdmin = [
   ...commonAttributes,
   param("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
-  body("password")
-    .optional()
-    .isString()
-    .withMessage("Password must be a string")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters long"),
+body("password")
+  .optional({ nullable: true, checkFalsy: true }) // skip if not provided or empty
+  .isString()
+  .withMessage("Password must be a string")
+  .isLength({ min: 8 }) // only validates if password exists
+  .withMessage("Password must be at least 8 characters long"),
   globalValidatorMiddleware,
 ];
 

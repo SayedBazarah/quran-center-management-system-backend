@@ -7,10 +7,11 @@ export async function seedPermissions(): Promise<string[]> {
   for (const p of PERMISSION_SEEDS) {
     const doc = await Permission.findOneAndUpdate(
       { code: p.code },
-      { $set: { name: p.name, description: p.description } },
+      { $set: { name: p.name,order: p.order, description: p.description } },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
     codes.push(doc.code);
   }
   return codes;
 }
+

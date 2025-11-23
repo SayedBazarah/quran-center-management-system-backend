@@ -6,13 +6,15 @@ import connectDB from "./config/mongodb";
 import { seedSuperAdmin } from "./bootstrap/seedSuperAdmin";
 import { initBaseFolders } from "./utils/file";
 import { scheduleJobs } from "./jobs/schedule";
+import { initRedis } from "./config";
 
 const port = env.port;
 const server = app.listen(port, async () => {
-  await connectDB();
-  // await initRedis();
-  await seedSuperAdmin();
   scheduleJobs();
+
+  await connectDB();
+  await initRedis();
+  await seedSuperAdmin();
   await initBaseFolders();
 
   /* eslint-disable no-console */

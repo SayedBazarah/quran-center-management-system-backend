@@ -32,7 +32,7 @@ function parseListQuery(q: Request["query"]) {
     if (t.startsWith("-")) sort[t.slice(1)] = -1;
     else sort[t] = 1;
   });
-
+console.log("Sort:", sort);
   return { page, limit, skip, filter, sort };
 }
 
