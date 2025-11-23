@@ -57,12 +57,6 @@ function parseListQuery(q: Request["query"]) {
  */
 export const createAdmin: CreateAdminHandler = async (req, res, next) => {
   try {
-    if (!req.file) {
-      res
-        .status(400)
-        .json({ success: false, message: "avatar file is required" });
-      return;
-    }
     const {
       name,
       email,
@@ -86,14 +80,6 @@ export const createAdmin: CreateAdminHandler = async (req, res, next) => {
       roleId,
       branchIds: branchIds.map((b) => new Types.ObjectId(b)),
     });
-
-    try {
-      const { filename } = await saveMulterFile(MediaCategory.Admin, req.file);
-      admin.nationalIdImg = `${env.media}/admin/${filename}`;
-      await admin.save();
-    } catch (err) {
-      console.log(err);
-    }
 
     res.status(201).json({
       success: true,
@@ -155,19 +141,13 @@ export const updateAdminById: RequestHandler = async (
   next: NextFunction
 ) => {
   try {
-    let filename: string | undefined = undefined;
-    if (req.file) {
-      const result = await saveMulterFile(MediaCategory.Admin, req.file);
-      filename = result.filename;
-    }
-
     const adminId = req.params.id as string;
     if (adminId == env.admin.id) {
       res.status(400).json({
         success: false,
-        message: "Cannot update admin with id: " + adminId,
+        message: "لا يمكن تعديل مدير النظام",
       });
-      return;
+      return
     }
 
     // Disallow updating unique identifiers to empty values
@@ -177,7 +157,6 @@ export const updateAdminById: RequestHandler = async (
       phone,
       username,
       password,
-      avatar,
       gender,
       roleId,
       branchIds,
@@ -196,11 +175,8 @@ export const updateAdminById: RequestHandler = async (
       if (typeof email !== "undefined") admin.email = email;
       if (typeof phone !== "undefined") admin.phone = phone;
       if (typeof username !== "undefined") admin.username = username;
-      if (typeof avatar !== "undefined") admin.avatar = avatar;
       if (typeof gender !== "undefined") admin.gender = gender;
       if (typeof roleId !== "undefined") admin.roleId = roleId;
-      if (typeof filename !== "undefined")
-        admin.nationalIdImg = `${env.media}/admin/${filename}`;
       if (typeof branchIds !== "undefined")
         admin.branchIds = branchIds?.map((b: string) => new Types.ObjectId(b));
 
@@ -224,7 +200,6 @@ export const updateAdminById: RequestHandler = async (
             ...(typeof email !== "undefined" && { email }),
             ...(typeof phone !== "undefined" && { phone }),
             ...(typeof username !== "undefined" && { username }),
-            ...(typeof avatar !== "undefined" && { avatar }),
             ...(typeof gender !== "undefined" && { gender }),
             ...(typeof roleId !== "undefined" && { roleId }),
             ...(typeof branchIds !== "undefined" && { branchIds }),

@@ -29,10 +29,9 @@ coverage/
 
 
 # Media 
-/media/
+media/
 
 
 # Deployment
 .env    
 dist/
-/dist/

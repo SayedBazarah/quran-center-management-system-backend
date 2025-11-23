@@ -15,8 +15,7 @@ AuthRouter.post(
       user: Express.User | false | null | undefined,
       info?: object | string
     ) => {
-      if (err || !user) return next(err);
-      if (!user) {
+      if (err || !user) {
         res.status(401).json({
           success: false,
           message:

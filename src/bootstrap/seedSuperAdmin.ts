@@ -47,14 +47,13 @@ export async function seedSuperAdminUser(
     await Admin.create({
       id: env.admin.id,
       _id: env.admin.id,
-      name: "Super Admin",
+      name: env.admin.name,
       username: env.admin.username,
       email: env.admin.email,
       phone: env.admin.phone,
       nationalId: env.admin.nationalId,
       password: env.admin.password,
       gender: "male",
-      nationalIdImg: "https://multisystem.com",
       roleId,
       isActive: true,
       isSystem: true,
@@ -63,10 +62,6 @@ export async function seedSuperAdminUser(
   } else {
     const branches = await Branch.find({}).select("_id");
     const branchIds = branches.map((branch) => branch._id);
-    console.log({
-      branchIds,
-      roleId,
-    });
     await Admin.findOneAndUpdate(
       { _id: admin._id },
       { $set: { isActive: true, isSystem: true, roleId, branchIds } }
@@ -79,6 +74,7 @@ export async function seedSuperAdminUser(
     isActive: true,
     isSystem: true,
   };
+  
   if (!admin.password) {
     setOps.password = await bcrypt.hash(env.admin.password, 12);
   }

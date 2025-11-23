@@ -16,8 +16,6 @@ AdminRouter.post(
   "/",
   isAuthenticated,
   requirePermissions(GlobalPermissionCode.CreateAdmin),
-  uploadSingle("nationalIdImg"),
-  normalizeFormDataArrays(["branchIds"]),
   validators.createAdmin,
   controllers.createAdmin
 );
@@ -27,15 +25,15 @@ AdminRouter.get(
   requirePermissions(GlobalPermissionCode.ReadAdmin),
   controllers.listAdmins
 );
+
 AdminRouter.patch(
   "/:id",
   isAuthenticated,
   requirePermissions(GlobalPermissionCode.UpdateAdmin),
-  uploadSingle("nationalIdImg"),
-  normalizeFormDataArrays(["branchIds"]),
   validators.updateAdmin,
   controllers.updateAdminById
 );
+
 AdminRouter.delete(
   "/:id",
   isAuthenticated,
