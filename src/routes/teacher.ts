@@ -11,7 +11,6 @@ TeacherRouter.post(
   "/",
   middlewares.isAuthenticated,
   middlewares.requirePermissions(GlobalPermissionCode.CreateTeacher),
-  middlewares.uploadSingle("nationalIdImg"),
   validators.createTeacher,
   controllers.createTeacher
 );
@@ -27,7 +26,6 @@ TeacherRouter.patch(
   "/:id",
   middlewares.isAuthenticated,
   middlewares.requirePermissions(GlobalPermissionCode.UpdateTeacher),
-  middlewares.uploadSingle("nationalIdImg"),
   validators.updateTeacher,
   controllers.updateTeacherById
 );

@@ -52,11 +52,6 @@ export const createTeacher = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const file = req.file;
-    if (!file) {
-      res.status(400).json({ success: false, message: "No file uploaded" });
-      return;
-    }
     const { name, email, phone, nationalId, username, gender, branchId } =
       req.body;
 
@@ -65,7 +60,6 @@ export const createTeacher = async (
       res.status(404).json({ success: false, message: "Branch not found" });
       return;
     }
-    const { filename } = await saveMulterFile(MediaCategory.Teacher, file);
 
     const teacher = await Teacher.create({
       name,
@@ -73,7 +67,6 @@ export const createTeacher = async (
       phone,
       nationalId,
       username,
-      nationalIdImg: `${env.media}/${MediaCategory.Teacher}/${filename}`,
       gender,
       branchId,
     });
@@ -102,6 +95,7 @@ export const listTeachers = async (
   try {
     const { page, limit, skip, filter, sort } = parseListQuery(req.query);
     const adminBranchIds: string[] = (req.user as any)?.branchIds || [];
+    console.log("adminBranchIds", adminBranchIds);
     if (!adminBranchIds.length) {
       res.status(403).json({ success: false, message: "No branch access" });
       return;
@@ -158,7 +152,7 @@ export const updateTeacherById = async (
       return;
     }
 
-    const { name, email, phone, nationalId, nationalIdImg, gender, branchId } =
+    const { name, email, phone, nationalId, gender, branchId } =
       req.body;
 
     if (typeof branchId !== "undefined") {
@@ -181,7 +175,6 @@ export const updateTeacherById = async (
           ...(typeof email !== "undefined" && { email }),
           ...(typeof phone !== "undefined" && { phone }),
           ...(typeof nationalId !== "undefined" && { nationalId }),
-          ...(typeof nationalIdImg !== "undefined" && { nationalIdImg }),
           ...(typeof gender !== "undefined" && { gender }),
           ...(typeof branchId !== "undefined" && { branchId }),
         },
