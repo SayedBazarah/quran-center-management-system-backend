@@ -68,6 +68,7 @@ const StudentSchema = new mongoose_1.Schema({
     nationalId: {
         type: String,
         unique: true,
+        sparse: true, // <-- ADD THIS LINE
         trim: true,
         minlength: [13, "National ID must be at least 13 characters"],
     },

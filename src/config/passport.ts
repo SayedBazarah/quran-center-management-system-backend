@@ -2,7 +2,6 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcryptjs";
 import { Admin } from "@/models"; // or User model if you prefer
-import role from "@/models/role";
 
 // Local strategy: use username or email; adapt to your login field
 passport.use(
@@ -90,7 +89,7 @@ passport.deserializeUser(async(user:any, done) => {
           return done(null, false);
         }
 
-        
+
 
     return done(null, admin as any);
   } catch (err) {

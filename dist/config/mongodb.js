@@ -9,6 +9,14 @@ const mongoose_1 = __importDefault(require("mongoose"));
  * Establishes connection to MongoDB database
  * Uses mongoose with modern connection options
  */
+// mongoose.connection.once("open", async () => {
+//   try {
+//     await mongoose.connection.db.collection("students").dropIndex("nationalId_1");
+//     console.log("Unique phone index removed");
+//   } catch (err) {
+//     console.log("No unique index found on phone or already removed");
+//   }
+// });
 const connectDB = async () => {
     try {
         // Connection options for stability and performance

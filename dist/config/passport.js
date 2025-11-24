@@ -61,8 +61,33 @@ passport_1.default.use(new passport_local_1.Strategy({
 passport_1.default.serializeUser((user, done) => {
     done(null, user);
 });
-passport_1.default.deserializeUser((user, done) => {
-    done(null, user);
+passport_1.default.deserializeUser(async (user, done) => {
+    try {
+        const admin = await models_1.Admin.findOne({
+            _id: user.id,
+        })
+            .select("-password")
+            .populate({
+            path: "roleId",
+            select: "name permissions",
+            populate: {
+                path: "permissions",
+                select: "code -_id",
+            },
+        })
+            .populate({
+            path: "branchIds",
+            select: "name",
+        })
+            .orFail();
+        if (!admin) {
+            return done(null, false);
+        }
+        return done(null, admin);
+    }
+    catch (err) {
+        return done(err);
+    }
 });
 exports.default = passport_1.default;
 exports.initializePassport = [passport_1.default.initialize(), passport_1.default.session()];
