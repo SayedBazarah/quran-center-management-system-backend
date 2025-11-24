@@ -12,9 +12,7 @@ const AuthRouter = (0, express_1.Router)();
 AuthRouter.post("/sign-in", (req, res, next) => {
     // Explicitly annotate callback to avoid implicit any
     const cb = (err, user, info) => {
-        if (err || !user)
-            return next(err);
-        if (!user) {
+        if (err || !user) {
             res.status(401).json({
                 success: false,
                 message: (typeof info === "object" && info?.message) ||

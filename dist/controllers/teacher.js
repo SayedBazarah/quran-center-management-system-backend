@@ -3,8 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteTeacherById = exports.updateTeacherById = exports.listTeachers = exports.createTeacher = void 0;
 const mongoose_1 = require("mongoose");
 const models_1 = require("../models");
-const env_1 = require("../env");
-const file_1 = require("../utils/file");
 // Shared list parser (pagination, search, sorting, optional branch filter)
 function parseListQuery(q) {
     const page = Math.max(parseInt(String(q.page ?? "1"), 10), 1);
@@ -42,25 +40,18 @@ function parseListQuery(q) {
  */
 const createTeacher = async (req, res, next) => {
     try {
-        const file = req.file;
-        if (!file) {
-            res.status(400).json({ success: false, message: "No file uploaded" });
-            return;
-        }
         const { name, email, phone, nationalId, username, gender, branchId } = req.body;
         const branch = await models_1.Branch.findById(branchId);
         if (!branch) {
             res.status(404).json({ success: false, message: "Branch not found" });
             return;
         }
-        const { filename } = await (0, file_1.saveMulterFile)(file_1.MediaCategory.Teacher, file);
         const teacher = await models_1.Teacher.create({
             name,
             email,
             phone,
             nationalId,
             username,
-            nationalIdImg: `${env_1.env.media}/${file_1.MediaCategory.Teacher}/${filename}`,
             gender,
             branchId,
         });
@@ -85,6 +76,7 @@ const listTeachers = async (req, res, next) => {
     try {
         const { page, limit, skip, filter, sort } = parseListQuery(req.query);
         const adminBranchIds = req.user?.branchIds || [];
+        console.log("adminBranchIds", adminBranchIds);
         if (!adminBranchIds.length) {
             res.status(403).json({ success: false, message: "No branch access" });
             return;
@@ -135,7 +127,7 @@ const updateTeacherById = async (req, res, next) => {
             res.status(400).json({ success: false, message: "Invalid teacher id" });
             return;
         }
-        const { name, email, phone, nationalId, nationalIdImg, gender, branchId } = req.body;
+        const { name, email, phone, nationalId, gender, branchId } = req.body;
         if (typeof branchId !== "undefined") {
             if (!mongoose_1.Types.ObjectId.isValid(branchId)) {
                 res.status(400).json({ success: false, message: "Invalid branchId" });
@@ -153,7 +145,6 @@ const updateTeacherById = async (req, res, next) => {
                 ...(typeof email !== "undefined" && { email }),
                 ...(typeof phone !== "undefined" && { phone }),
                 ...(typeof nationalId !== "undefined" && { nationalId }),
-                ...(typeof nationalIdImg !== "undefined" && { nationalIdImg }),
                 ...(typeof gender !== "undefined" && { gender }),
                 ...(typeof branchId !== "undefined" && { branchId }),
             },

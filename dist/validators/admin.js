@@ -48,11 +48,11 @@ exports.updateAdmin = [
     ...commonAttributes,
     (0, express_validator_1.param)("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
     (0, express_validator_1.body)("password")
-        .optional()
+        .optional({ nullable: true, checkFalsy: true }) // skip if not provided or empty
         .isString()
         .withMessage("Password must be a string")
-        .isLength({ min: 6 })
-        .withMessage("Password must be at least 6 characters long"),
+        .isLength({ min: 8 }) // only validates if password exists
+        .withMessage("Password must be at least 8 characters long"),
     middlewares_1.globalValidatorMiddleware,
 ];
 exports.deleteAdmin = [

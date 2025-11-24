@@ -1,7 +1,7 @@
 // src/jobs/tasks/markLateEnrollments.ts
 import { env } from "@/env";
 import { Enrollment, Log } from "@/models";
-import log, { LogAction } from "@/models/log";
+import  { LogAction } from "@/models/log";
 import { EnrollmentStatus } from "@/types/enums";
 import { Types } from "mongoose";
 

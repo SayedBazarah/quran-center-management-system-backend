@@ -9,7 +9,7 @@ const node_cron_1 = __importDefault(require("node-cron"));
 const markLateEnrollments_1 = require("./tasks/markLateEnrollments");
 function scheduleJobs() {
     // Run every day at 02:00 local server time
-    node_cron_1.default.schedule("* 0 2 * * *", async () => {
+    node_cron_1.default.schedule("0 0 */12 * * *", async () => {
         try {
             console.log("[cron] started");
             const res = await (0, markLateEnrollments_1.markLateEnrollmentsJob)();

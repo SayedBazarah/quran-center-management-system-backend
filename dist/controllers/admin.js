@@ -4,7 +4,6 @@ exports.deleteAdminById = exports.updateAdminById = exports.listAdmins = exports
 // src/controllers/adminController.ts
 const env_1 = require("../env");
 const models_1 = require("../models");
-const file_1 = require("../utils/file");
 const mongoose_1 = require("mongoose");
 // Helper: parse pagination/sorting
 function parseListQuery(q) {
@@ -51,12 +50,6 @@ function parseListQuery(q) {
  */
 const createAdmin = async (req, res, next) => {
     try {
-        if (!req.file) {
-            res
-                .status(400)
-                .json({ success: false, message: "avatar file is required" });
-            return;
-        }
         const { name, email, phone, nationalId, username, password, gender, roleId, branchIds, } = req.body;
         const admin = await models_1.Admin.create({
             name,
@@ -69,14 +62,6 @@ const createAdmin = async (req, res, next) => {
             roleId,
             branchIds: branchIds.map((b) => new mongoose_1.Types.ObjectId(b)),
         });
-        try {
-            const { filename } = await (0, file_1.saveMulterFile)(file_1.MediaCategory.Admin, req.file);
-            admin.nationalIdImg = `${env_1.env.media}/admin/${filename}`;
-            await admin.save();
-        }
-        catch (err) {
-            console.log(err);
-        }
         res.status(201).json({
             success: true,
             message: "Admin created successfully",
@@ -129,21 +114,16 @@ exports.listAdmins = listAdmins;
  */
 const updateAdminById = async (req, res, next) => {
     try {
-        let filename = undefined;
-        if (req.file) {
-            const result = await (0, file_1.saveMulterFile)(file_1.MediaCategory.Admin, req.file);
-            filename = result.filename;
-        }
         const adminId = req.params.id;
         if (adminId == env_1.env.admin.id) {
             res.status(400).json({
                 success: false,
-                message: "Cannot update admin with id: " + adminId,
+                message: "لا يمكن تعديل مدير النظام",
             });
             return;
         }
         // Disallow updating unique identifiers to empty values
-        const { name, email, phone, username, password, avatar, gender, roleId, branchIds, } = req.body;
+        const { name, email, phone, username, password, gender, roleId, branchIds, } = req.body;
         // If password is provided, it will be hashed by pre-save hook via save() flow.
         // findByIdAndUpdate would bypass pre-save, so use two-step when password exists.
         if (password) {
@@ -160,14 +140,10 @@ const updateAdminById = async (req, res, next) => {
                 admin.phone = phone;
             if (typeof username !== "undefined")
                 admin.username = username;
-            if (typeof avatar !== "undefined")
-                admin.avatar = avatar;
             if (typeof gender !== "undefined")
                 admin.gender = gender;
             if (typeof roleId !== "undefined")
                 admin.roleId = roleId;
-            if (typeof filename !== "undefined")
-                admin.nationalIdImg = `${env_1.env.media}/admin/${filename}`;
             if (typeof branchIds !== "undefined")
                 admin.branchIds = branchIds?.map((b) => new mongoose_1.Types.ObjectId(b));
             admin.password = password;
@@ -187,7 +163,6 @@ const updateAdminById = async (req, res, next) => {
                     ...(typeof email !== "undefined" && { email }),
                     ...(typeof phone !== "undefined" && { phone }),
                     ...(typeof username !== "undefined" && { username }),
-                    ...(typeof avatar !== "undefined" && { avatar }),
                     ...(typeof gender !== "undefined" && { gender }),
                     ...(typeof roleId !== "undefined" && { roleId }),
                     ...(typeof branchIds !== "undefined" && { branchIds }),

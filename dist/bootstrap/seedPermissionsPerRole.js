@@ -8,9 +8,9 @@ function toSchemaCode(code) {
     return code.toUpperCase().replace(/-/g, "_");
 }
 async function seedSuperAdminPermissions() {
-    const role = await models_1.Role.findOneAndUpdate({ name: process.env.SUPER_ROLE_NAME || "Super Admin" }, {
+    const role = await models_1.Role.findOneAndUpdate({ name: process.env.SUPER_ROLE_NAME || "مدير النظام" }, {
         $set: {
-            name: process.env.SUPER_ROLE_NAME || "Super Admin",
+            name: process.env.SUPER_ROLE_NAME || "مدير النظام",
             isSystem: true,
         },
     }, { new: true, upsert: true, setDefaultsOnInsert: true });

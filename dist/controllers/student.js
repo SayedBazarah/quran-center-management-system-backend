@@ -4,8 +4,6 @@ exports.reActivateFiredStudent = exports.fireStudent = exports.updateStudentStat
 const mongoose_1 = require("mongoose");
 const models_1 = require("../models");
 const enums_1 = require("../types/enums");
-const file_1 = require("../utils/file");
-const env_1 = require("../env");
 // Shared list parser with pagination, search, sorting
 function parseListQuery(q) {
     // Check if requesting all students
@@ -53,10 +51,6 @@ const createStudent = async (req, res, next) => {
     try {
         const { name, email, phone, nationalId, birthDate, gender, address, branchId, adminId, // creator admin (optional trace)
          } = req.body;
-        if (!req.file) {
-            res.status(400).json({ success: false, message: "No file uploaded" });
-            return;
-        }
         if (branchId && !mongoose_1.Types.ObjectId.isValid(branchId)) {
             res.status(400).json({ success: false, message: "Invalid branchId" });
             return;
@@ -72,7 +66,6 @@ const createStudent = async (req, res, next) => {
                 return;
             }
         }
-        const { filename } = await (0, file_1.saveMulterFile)(file_1.MediaCategory.Student, req.file);
         const student = await models_1.Student.create({
             name,
             email,
@@ -85,12 +78,11 @@ const createStudent = async (req, res, next) => {
             adminId,
             status: enums_1.StudentStatus.PENDING,
             createdBy: req.user?.id,
-            nationalIdImg: `${env_1.env.media}/${file_1.MediaCategory.Student}/${filename}`,
         });
         await models_1.Log.create({
             studentId: student._id,
             adminId: new mongoose_1.Types.ObjectId(`${req.user?.id}`),
-            note: `تم تسجيل بيانات الطالب بواسطة  ${req.user?.name}`,
+            note: `تم تسجيل بيانات الطالب بواسطة ${req.user?.name}`,
         });
         res.status(201).json({
             success: true,
@@ -434,7 +426,6 @@ exports.acceptStudent = acceptStudent;
  */
 const updateStudentStatus = async (req, res, next) => {
     try {
-        console.log("--- Update student status ----");
         const { id } = req.params;
         const { status, reason } = req.body;
         const update = { status };
@@ -463,8 +454,8 @@ const updateStudentStatus = async (req, res, next) => {
             studentId: id,
             adminId: req.user?.id,
             note: status === "accepted"
-                ? "تم قبول الطالب"
-                : `تم رفض الطالب، بسبب ${reason}`,
+                ? `تم قبول الطالب ${updated.name}`
+                : `تم رفض الطالب ${updated.name}، بسبب ${reason}`,
             changes: [
                 { field: "status", from: "pending", to: status },
                 ...(reason ? [{ field: "rejectionReason", from: "", to: reason }] : []),

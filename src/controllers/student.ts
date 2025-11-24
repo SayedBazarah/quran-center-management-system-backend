@@ -3,8 +3,6 @@ import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { Student, Enrollment, Admin, Log } from "@/models";
 import { EnrollmentStatus, StudentStatus } from "@/types/enums";
-import { MediaCategory, saveMulterFile } from "@/utils/file";
-import { env } from "@/env";
 
 // Shared list parser with pagination, search, sorting
 function parseListQuery(q: Request["query"]) {

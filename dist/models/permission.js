@@ -50,6 +50,10 @@ const PermissionSchema = new mongoose_1.Schema({
         required: [true, "Permission name is required"],
         trim: true,
     },
+    order: {
+        type: Number,
+        default: 0,
+    },
 }, {
     timestamps: false,
     collection: "permissions",

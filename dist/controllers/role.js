@@ -30,6 +30,7 @@ function parseListQuery(q) {
         else
             sort[t] = 1;
     });
+    console.log("Sort:", sort);
     return { page, limit, skip, filter, sort };
 }
 /**

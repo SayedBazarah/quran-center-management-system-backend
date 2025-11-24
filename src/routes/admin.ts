@@ -5,8 +5,6 @@ import * as validators from "@/validators";
 import {
   isAuthenticated,
   requirePermissions,
-  uploadSingle,
-  normalizeFormDataArrays,
 } from "@/middlewares";
 import { GlobalPermissionCode } from "@/bootstrap/permissionSeeds";
 

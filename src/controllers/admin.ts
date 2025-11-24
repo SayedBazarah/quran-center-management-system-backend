@@ -2,7 +2,6 @@
 import { env } from "@/env";
 import { Admin } from "@/models";
 import { CreateAdminHandler } from "@/types/handlers/admin.handlers";
-import { MediaCategory, saveMulterFile } from "@/utils/file";
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import { Types } from "mongoose";
 

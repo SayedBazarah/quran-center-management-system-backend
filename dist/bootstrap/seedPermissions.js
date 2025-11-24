@@ -7,7 +7,7 @@ const permissionSeeds_1 = require("./permissionSeeds");
 async function seedPermissions() {
     const codes = [];
     for (const p of permissionSeeds_1.PERMISSION_SEEDS) {
-        const doc = await models_1.Permission.findOneAndUpdate({ code: p.code }, { $set: { name: p.name, description: p.description } }, { new: true, upsert: true, setDefaultsOnInsert: true });
+        const doc = await models_1.Permission.findOneAndUpdate({ code: p.code }, { $set: { name: p.name, order: p.order, description: p.description } }, { new: true, upsert: true, setDefaultsOnInsert: true });
         codes.push(doc.code);
     }
     return codes;

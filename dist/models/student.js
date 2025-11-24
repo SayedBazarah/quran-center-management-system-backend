@@ -59,7 +59,6 @@ const StudentSchema = new mongoose_1.Schema({
     phone: {
         type: String,
         required: [true, "Phone number is required"],
-        unique: true,
         trim: true,
         match: [
             /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
@@ -68,10 +67,9 @@ const StudentSchema = new mongoose_1.Schema({
     },
     nationalId: {
         type: String,
-        required: [true, "National ID is required"],
         unique: true,
         trim: true,
-        minlength: [10, "National ID must be at least 10 characters"],
+        minlength: [13, "National ID must be at least 13 characters"],
     },
     nationalIdImg: {
         type: String,

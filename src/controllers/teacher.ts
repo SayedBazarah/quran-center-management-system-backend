@@ -2,8 +2,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { Teacher, Branch } from "@/models";
-import { env } from "@/env";
-import { MediaCategory, saveMulterFile } from "@/utils/file";
 
 // Shared list parser (pagination, search, sorting, optional branch filter)
 function parseListQuery(q: Request["query"]) {

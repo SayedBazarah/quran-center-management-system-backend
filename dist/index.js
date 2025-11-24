@@ -11,12 +11,13 @@ const mongodb_1 = __importDefault(require("./config/mongodb"));
 const seedSuperAdmin_1 = require("./bootstrap/seedSuperAdmin");
 const file_1 = require("./utils/file");
 const schedule_1 = require("./jobs/schedule");
+const config_1 = require("./config");
 const port = env_1.env.port;
 const server = app_1.default.listen(port, async () => {
-    await (0, mongodb_1.default)();
-    // await initRedis();
-    await (0, seedSuperAdmin_1.seedSuperAdmin)();
     (0, schedule_1.scheduleJobs)();
+    await (0, mongodb_1.default)();
+    await (0, config_1.initRedis)();
+    await (0, seedSuperAdmin_1.seedSuperAdmin)();
     await (0, file_1.initBaseFolders)();
     /* eslint-disable no-console */
     console.log(`Listening: http://localhost:${port}`);
