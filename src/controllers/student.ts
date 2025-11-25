@@ -436,9 +436,20 @@ export const listPendingStudents = async (
   try {
     const { page, limit, skip, sort } = parseListQuery(req.query);
 
+    const adminBranchIds: string[] = (req.user as any)?.branchIds || [];
+
+    if (!adminBranchIds.length) {
+      res.status(403).json({ success: false, message: "No branch access" });
+      return;
+    }
     const filter = { status: StudentStatus.PENDING };
+        const newFilter = {
+      ...filter,
+      branchId: { $in: adminBranchIds.map((id) => new Types.ObjectId(id)) },
+    };
+    
     const [items, total] = await Promise.all([
-      Student.find(filter)
+      Student.find(newFilter)
         .sort(sort)
         .skip(skip)
         .limit(limit)
