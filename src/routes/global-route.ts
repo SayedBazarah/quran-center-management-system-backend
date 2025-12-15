@@ -1,4 +1,3 @@
-import { Router } from "express";
 
 import AuthRoute from "./auth";
 import AdminRouter from "./admin";
@@ -10,6 +9,7 @@ import EnrollmentRouter from "./enrollment";
 import ParentRouter from "./parent";
 import StudentRouter from "./student";
 import TeacherRouter from "./teacher";
+import { Router } from "express";
 
 const routes = Router();
 

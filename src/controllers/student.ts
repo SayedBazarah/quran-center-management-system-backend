@@ -372,8 +372,9 @@ export const listStudentsWithEnrollment = async (
       },
     })
       .select("studentId startDate status courseId teacherId")
-      .populate({ path: "courseId", select: "name _id id duration" })
-      .populate({ path: "teacherId", select: "name _id id" })
+      .populate({ path: "courseId", select: "name duration" })
+      .populate({ path: "teacherId", select: "name" })
+      .populate({ path: "adminId", select: "name" })
       .lean();
 
     const activeMap = new Map<string, any>();
@@ -386,9 +387,10 @@ export const listStudentsWithEnrollment = async (
     // 2) All enrollments per student (optionally limit N most recent)
     const all = await Enrollment.find({ studentId: { $in: studentIds } })
       .sort({ createdAt: -1 })
-      .select("studentId status courseId teacherId")
+      .select("studentId status courseId teacherId adminId startDate endDate")
       .populate({ path: "courseId", select: "name _id duration" })
       .populate({ path: "teacherId", select: "name _id" })
+      .populate({ path: "adminId", select: "name" })
       .lean();
 
     const allMap = new Map<string, any[]>();
