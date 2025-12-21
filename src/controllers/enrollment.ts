@@ -373,36 +373,53 @@ export const listPendingEnrollments = async (
 ): Promise<void> => {
   try {
     const { page, limit, skip, sort } = parseListQuery(req.query)
-    const filter = { status: EnrollmentStatus.PENDING }
+
+    const adminBranchIds: string[] = (req.user as any)?.branchIds || []
+
+    if (!adminBranchIds.length) {
+      res.status(403).json({ success: false, message: 'No branch access' })
+      return
+    }
+
+    // 1️⃣ Find admins belonging to these branches
+    const admins = await Admin.find({
+      branchIds: { $in: adminBranchIds.map((id) => new Types.ObjectId(id)) },
+    }).select('_id')
+
+    const adminIds = admins.map((a) => a._id)
+
+    // 2️⃣ Filter enrollments
+    const filter = {
+      status: EnrollmentStatus.PENDING,
+      adminId: { $in: adminIds },
+    }
 
     const [items, total] = await Promise.all([
       Enrollment.find(filter)
         .sort(sort)
         .skip(skip)
         .limit(limit)
-        .populate({
-          path: 'courseId',
-          select: 'name',
-        })
-        .populate({
-          path: 'studentId',
-          select: 'name phone',
-        })
+        .populate({ path: 'courseId', select: 'name' })
+        .populate({ path: 'studentId', select: 'name phone' })
         .populate({ path: 'teacherId', select: 'name' })
         .populate({ path: 'adminId', select: 'name' })
         .populate({ path: 'createdBy', select: 'name' }),
+
       Enrollment.countDocuments(filter),
     ])
 
     res.status(200).json({
       success: true,
       data: items,
-      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     })
-    return
   } catch (err) {
     next(err)
-    return
   }
 }
 
