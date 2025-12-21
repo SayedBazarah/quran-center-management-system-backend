@@ -383,7 +383,7 @@ export const listPendingEnrollments = async (
     const filter = { status: StudentStatus.PENDING }
     const newFilter = {
       ...filter,
-      adminId: { $in: adminBranchIds.map((id) => new Types.ObjectId(id)) },
+      adminId: { $in: adminBranchIds },
     }
 
     const [items, total] = await Promise.all([
