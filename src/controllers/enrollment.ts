@@ -419,6 +419,7 @@ export const listPendingEnrollments = async (
       },
     })
   } catch (err) {
+    console.log(err)
     next(err)
   }
 }
