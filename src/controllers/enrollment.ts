@@ -373,6 +373,7 @@ export const listPendingEnrollments = async (
 ): Promise<void> => {
   try {
     const { page, limit, skip, sort } = parseListQuery(req.query)
+    const filter = { status: EnrollmentStatus.PENDING }
 
     const [items, total] = await Promise.all([
       Enrollment.find(filter)
