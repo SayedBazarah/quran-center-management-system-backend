@@ -1,40 +1,41 @@
 // src/routes/branchRoutes.ts
-import { Router } from "express";
+import { Router } from 'express'
 
-import * as controllers from "@/controllers";
-import * as validators from "@/validators";
-import { isAuthenticated, requirePermissions } from "@/middlewares";
-import { GlobalPermissionCode } from "@/bootstrap/permissionSeeds";
+import * as controllers from '@/controllers'
+import * as validators from '@/validators'
+import { isAuthenticated, requirePermissions } from '@/middlewares'
+import { GlobalPermissionCode } from '@/bootstrap/permissionSeeds'
 
-const BranchRouter = Router();
+const BranchRouter = Router()
 
 BranchRouter.post(
-  "/",
+  '/',
   isAuthenticated,
   requirePermissions(GlobalPermissionCode.CreateBranch),
   validators.createBranch,
   controllers.createBranch
-);
+)
+BranchRouter.get('/', isAuthenticated, controllers.listBranches)
 BranchRouter.get(
-  "/",
+  '/all',
   isAuthenticated,
   requirePermissions(GlobalPermissionCode.ReadBranch),
 
-  controllers.listBranches
-);
+  controllers.listAllBranches
+)
 BranchRouter.patch(
-  "/:id",
+  '/:id',
   isAuthenticated,
   requirePermissions(GlobalPermissionCode.UpdateBranch),
   validators.updateBranch,
   controllers.updateBranchById
-);
+)
 BranchRouter.delete(
-  "/:id",
+  '/:id',
   isAuthenticated,
   requirePermissions(GlobalPermissionCode.DeleteBranch),
   validators.deleteBranch,
   controllers.deleteBranchById
-);
+)
 
-export default BranchRouter;
+export default BranchRouter

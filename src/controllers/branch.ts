@@ -121,6 +121,35 @@ export const listBranches = async (
     return
   }
 }
+export const listAllBranches = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { page, limit, skip, filter, sort } = parseListQuery(req.query)
+
+    const [items, total] = await Promise.all([
+      Branch.find(filter).sort(sort).skip(skip).limit(limit),
+      Branch.countDocuments(filter),
+    ])
+
+    res.status(200).json({
+      success: true,
+      data: items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    })
+    return
+  } catch (err) {
+    next(err)
+    return
+  }
+}
 
 /**
  * Update Branch by ID

@@ -146,6 +146,41 @@ export const listAdmins: RequestHandler = async (
     return next(err)
   }
 }
+export const listAllAdmins: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { page, limit, skip, filter, sort } = parseListQuery(req.query)
+
+    // 🔐 Enforce branch-based access (server-side)
+
+    const [items, total] = await Promise.all([
+      Admin.find(filter)
+        .select('-password')
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .populate('roleId', 'name')
+        .populate('branchIds', 'name'),
+      Admin.countDocuments(filter),
+    ])
+
+    res.status(200).json({
+      success: true,
+      data: items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    })
+  } catch (err) {
+    return next(err)
+  }
+}
 
 /**
  * Update Admin by ID

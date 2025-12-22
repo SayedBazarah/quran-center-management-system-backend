@@ -1,43 +1,41 @@
 // src/routes/adminRoutes.ts
-import { Router } from "express";
-import * as controllers from "@/controllers";
-import * as validators from "@/validators";
-import {
-  isAuthenticated,
-  requirePermissions,
-} from "@/middlewares";
-import { GlobalPermissionCode } from "@/bootstrap/permissionSeeds";
+import { Router } from 'express'
+import * as controllers from '@/controllers'
+import * as validators from '@/validators'
+import { isAuthenticated, requirePermissions } from '@/middlewares'
+import { GlobalPermissionCode } from '@/bootstrap/permissionSeeds'
 
-const AdminRouter = Router();
+const AdminRouter = Router()
 
 AdminRouter.post(
-  "/",
+  '/',
   isAuthenticated,
   requirePermissions(GlobalPermissionCode.CreateAdmin),
   validators.createAdmin,
   controllers.createAdmin
-);
+)
+AdminRouter.get('/', isAuthenticated, controllers.listAdmins)
 AdminRouter.get(
-  "/",
+  '/all',
   isAuthenticated,
   requirePermissions(GlobalPermissionCode.ReadAdmin),
-  controllers.listAdmins
-);
+  controllers.listAllAdmins
+)
 
 AdminRouter.patch(
-  "/:id",
+  '/:id',
   isAuthenticated,
   requirePermissions(GlobalPermissionCode.UpdateAdmin),
   validators.updateAdmin,
   controllers.updateAdminById
-);
+)
 
 AdminRouter.delete(
-  "/:id",
+  '/:id',
   isAuthenticated,
   requirePermissions(GlobalPermissionCode.DeleteAdmin),
   validators.deleteAdmin,
   controllers.deleteAdminById
-);
+)
 
-export default AdminRouter;
+export default AdminRouter
