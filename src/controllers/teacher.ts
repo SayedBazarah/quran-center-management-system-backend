@@ -50,15 +50,13 @@ export const createTeacher = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { name, email, phone, nationalId, username, gender, branchId } =
-      req.body
+    const { name, email, phone, nationalId, gender, branchId } = req.body
 
     const teacher = await Teacher.create({
       name,
       email,
       phone,
       nationalId,
-      username,
       gender,
       branchId,
     })

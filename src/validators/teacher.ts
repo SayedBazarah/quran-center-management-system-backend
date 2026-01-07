@@ -6,8 +6,7 @@ const commonAttributes = [
   body('name')
     .isString()
     .withMessage('Name must be a string')
-    .isLength({ min: 2 })
-    .withMessage('Name must be at least 2 characters long'),
+    .isLength({ min: 2 }),
   body('phone')
     .isString()
     .withMessage('Phone number is invalid')

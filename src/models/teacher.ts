@@ -75,14 +75,6 @@ const TeacherSchema = new Schema<ITeacher>(
       type: String,
       trim: true,
     },
-    username: {
-      type: String,
-      required: [true, 'Username is required'],
-      unique: true,
-      trim: true,
-      lowercase: true,
-      minlength: [3, 'Username must be at least 3 characters'],
-    },
     gender: {
       type: String,
       enum: Object.values(Gender),
