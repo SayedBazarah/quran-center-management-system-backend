@@ -1,92 +1,94 @@
 // src/routes/studentRoutes.ts
-import { Router } from "express";
-import * as controllers from "@/controllers";
-import * as validators from "@/validators";
-import * as middlewares from "@/middlewares";
-import { GlobalPermissionCode } from "@/bootstrap/permissionSeeds";
+import { Router } from 'express'
+import * as controllers from '@/controllers'
+import * as validators from '@/validators'
+import * as middlewares from '@/middlewares'
+import { GlobalPermissionCode } from '@/bootstrap/permissionSeeds'
 
-const StudentRouter = Router();
+const StudentRouter = Router()
 
 // CRUD
 StudentRouter.post(
-  "/",
+  '/',
   middlewares.isAuthenticated,
   middlewares.requirePermissions(GlobalPermissionCode.CreateStudent),
-  middlewares.uploadSingle("nationalIdImg"),
+  middlewares.uploadSingle('nationalIdImg'),
   validators.createStudent,
   controllers.createStudent
-);
+)
 // List with enrollment info
 StudentRouter.get(
-  "/",
+  '/',
   middlewares.isAuthenticated,
   middlewares.requirePermissions(GlobalPermissionCode.ReadStudent),
   controllers.listStudentsWithEnrollment
-);
+)
 
 StudentRouter.patch(
-  "/:id",
+  '/:id',
   middlewares.isAuthenticated,
   middlewares.requirePermissions(GlobalPermissionCode.UpdateStudent),
-  middlewares.uploadSingle("nationalIdImg"),
+  middlewares.uploadSingle('nationalIdImg'),
   validators.updateStudent,
   controllers.updateStudentById
-);
+)
 StudentRouter.delete(
-  "/:id",
+  '/:id',
   middlewares.isAuthenticated,
   middlewares.requirePermissions(GlobalPermissionCode.DeleteStudent),
   validators.deleteStudent,
   controllers.deleteStudentById
-);
+)
 
 // Details
 StudentRouter.get(
-  "/:id",
+  '/:id',
   middlewares.isAuthenticated,
   middlewares.requirePermissions(GlobalPermissionCode.ReadStudent),
   validators.studentDetails,
   controllers.getStudentDetails
-);
+)
 
 // Pending students
 StudentRouter.get(
-  "/status/pending/list",
+  '/status/pending/list',
   middlewares.isAuthenticated,
   middlewares.requirePermissions(GlobalPermissionCode.AcceptStudent),
   controllers.listPendingStudents
-);
+)
 
 // Actions
 StudentRouter.post(
-  "/:id/status",
+  '/:id/status',
   middlewares.isAuthenticated,
   middlewares.requirePermissions(GlobalPermissionCode.AcceptEnrollment),
   validators.updateStudentStatus,
   controllers.updateStudentStatus
-);
+)
+
 StudentRouter.post(
-  "/:id/fire",
+  '/:id/fire',
   middlewares.isAuthenticated,
-  middlewares.requirePermissions(GlobalPermissionCode.AcceptEnrollment),
-  validators.updateStudentStatus,
-  controllers.updateStudentStatus
-);
+  middlewares.requirePermissions(GlobalPermissionCode.FireStudent),
+  validators.fireStudent,
+  controllers.fireStudent
+)
 
-StudentRouter.delete(
-  "/:id",
+StudentRouter.post(
+  '/:id/reactive',
   middlewares.isAuthenticated,
-  middlewares.requirePermissions(GlobalPermissionCode.DeleteStudent),
-  validators.deleteStudent,
-  controllers.deleteStudentById
-);
+  middlewares.requirePermissions(GlobalPermissionCode.ReactiveStudent),
+  validators.reactiveStudent,
+  controllers.reActivateFiredStudent
+)
 
-// Details
+// Logs
 StudentRouter.get(
-  "/:id",
+  '/:id/logs',
   middlewares.isAuthenticated,
   middlewares.requirePermissions(GlobalPermissionCode.ReadStudent),
   validators.studentDetails,
-  controllers.getStudentDetails
-);
-export default StudentRouter;
+  controllers.getStudentLogs
+)
+
+export default StudentRouter

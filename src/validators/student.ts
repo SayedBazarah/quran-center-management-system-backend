@@ -61,6 +61,7 @@ export const rejectStudent = [
 ];
 export const fireStudent = [
   param("id").isMongoId().withMessage("ID must be a valid MongoDB ID"),
+  body("reason").optional().isString().withMessage("Reason must be a string"),
   globalValidatorMiddleware,
 ];
 export const reactiveStudent = [

@@ -596,16 +596,7 @@ export const fireStudent = async (
 ): Promise<void> => {
   try {
     const id = req.params.id as string
-    const { firedById, reason } = req.body
-
-    if (!Types.ObjectId.isValid(id)) {
-      res.status(400).json({ success: false, message: 'Invalid student id' })
-      return
-    }
-    if (firedById && !Types.ObjectId.isValid(firedById)) {
-      res.status(400).json({ success: false, message: 'Invalid firedById' })
-      return
-    }
+    const { reason } = req.body
 
     const student = await Student.findById(id)
     if (!student) {
@@ -613,10 +604,32 @@ export const fireStudent = async (
       return
     }
 
-    await student.markAsFired(
-      firedById ? new Types.ObjectId(firedById) : new Types.ObjectId(),
-      reason
-    )
+    if (student.fired) {
+      res.status(400).json({ success: false, message: 'Student is already fired' })
+      return
+    }
+
+    if (student.status !== StudentStatus.ACTIVE) {
+      res.status(400).json({
+        success: false,
+        message: 'Only active students can be fired',
+      })
+      return
+    }
+
+    // Close all active enrollments for this student
+    const activeEnrollments = await Enrollment.find({
+      studentId: student._id,
+      status: { $in: [EnrollmentStatus.ACTIVE, EnrollmentStatus.PENDING, EnrollmentStatus.LATE] },
+    })
+
+    for (const enrollment of activeEnrollments) {
+      await enrollment.close(EnrollmentStatus.DROPOUT)
+    }
+
+    // Mark the student as fired
+    const adminId = new Types.ObjectId(`${req.user?.id}`)
+    await student.markAsFired(adminId, reason || `تم فصل الطالب بواسطة ${req.user?.name}`)
 
     res.status(200).json({
       success: true,
@@ -641,14 +654,15 @@ export const reActivateFiredStudent = async (
 ): Promise<void> => {
   try {
     const id = req.params.id as string
-    if (!Types.ObjectId.isValid(id)) {
-      res.status(400).json({ success: false, message: 'Invalid student id' })
-      return
-    }
 
     const student = await Student.findById(id)
     if (!student) {
       res.status(404).json({ success: false, message: 'Student not found' })
+      return
+    }
+
+    if (!student.fired) {
+      res.status(400).json({ success: false, message: 'Student is not fired' })
       return
     }
 
@@ -658,10 +672,62 @@ export const reActivateFiredStudent = async (
     student.status = StudentStatus.ACTIVE
     await student.save()
 
+    await Log.create({
+      studentId: student._id,
+      adminId: new Types.ObjectId(`${req.user?.id}`),
+      note: `تم إعادة قيد الطالب ${student.name} بواسطة ${req.user?.name}`,
+    })
+
     res.status(200).json({
       success: true,
       message: 'Student re-activated (status set to active)',
       data: student,
+    })
+    return
+  } catch (err) {
+    next(err)
+    return
+  }
+}
+
+/**
+ * Get student logs with pagination
+ */
+export const getStudentLogs = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const id = req.params.id as string
+
+    const page = Math.max(parseInt(String(req.query.page ?? '1'), 10), 1)
+    const limit = Math.min(
+      Math.max(parseInt(String(req.query.limit ?? '20'), 10), 1),
+      100
+    )
+    const skip = (page - 1) * limit
+
+    const [items, total] = await Promise.all([
+      Log.find({ studentId: id })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({ path: 'adminId', select: 'name' })
+        .populate({ path: 'enrollmentId', select: 'status courseId' })
+        .lean(),
+      Log.countDocuments({ studentId: id }),
+    ])
+
+    res.status(200).json({
+      success: true,
+      data: items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     })
     return
   } catch (err) {
