@@ -25,6 +25,13 @@ StudentRouter.get(
 )
 
 StudentRouter.patch(
+  '/:id/parent-note',
+  middlewares.isAuthenticated,
+  middlewares.requirePermissions(GlobalPermissionCode.UpdateStudent),
+  controllers.updateParentNote
+)
+
+StudentRouter.patch(
   '/:id',
   middlewares.isAuthenticated,
   middlewares.requirePermissions(GlobalPermissionCode.UpdateStudent),

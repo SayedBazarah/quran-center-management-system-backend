@@ -5,6 +5,7 @@ export * from "./branch";
 export * from "./course";
 export * from "./enrollment";
 export * from "./parent";
+export * from "./parentPortal";
 export * from "./role";
 export * from "./student";
 export * from "./teacher";

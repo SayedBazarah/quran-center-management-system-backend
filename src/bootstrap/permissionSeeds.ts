@@ -62,7 +62,7 @@ export const PERMISSION_SEEDS: Array<{
   },
   { code: GlobalPermissionCode.FireStudent, name: "فصل طلاب", order: 0 },
   { code: GlobalPermissionCode.ReactiveStudent, name: "اعادة قيد الطلاب", order: 0},
-  // { code: GlobalPermissionCode.CreateEnrollment, name: "تسجيل مرحلة للطلاب" },
+  { code: GlobalPermissionCode.CreateEnrollment, name: "تسجيل مرحلة للطلاب", order: 0 },
   {
     code: GlobalPermissionCode.UpdateEnrollment,
     name: "تعديل بيانات المراحل للطلاب",

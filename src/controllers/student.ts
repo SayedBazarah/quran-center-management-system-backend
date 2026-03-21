@@ -204,6 +204,40 @@ export const updateStudentById = async (
 }
 
 /**
+ * Update parent note for a student
+ */
+export const updateParentNote = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const id = req.params.id as string
+    if (!Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, message: 'Invalid student id' })
+      return
+    }
+
+    const { parentNote } = req.body
+
+    const updated = await Student.findByIdAndUpdate(
+      id,
+      { $set: { parentNote: parentNote ?? '' } },
+      { new: true }
+    )
+
+    if (!updated) {
+      res.status(404).json({ success: false, message: 'Student not found' })
+      return
+    }
+
+    res.status(200).json({ success: true, data: updated })
+  } catch (err) {
+    next(err)
+  }
+}
+
+/**
  * Delete Student by ID
  */
 export const deleteStudentById = async (

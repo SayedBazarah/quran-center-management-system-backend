@@ -7,6 +7,7 @@ import CourseRouter from "./course";
 import RoleRouter from "./role";
 import EnrollmentRouter from "./enrollment";
 import ParentRouter from "./parent";
+import ParentPortalRouter from "./parentPortal";
 import StudentRouter from "./student";
 import TeacherRouter from "./teacher";
 import { Router } from "express";
@@ -21,6 +22,7 @@ routes.use("/courses", CourseRouter);
 routes.use("/roles", RoleRouter);
 routes.use("/enrollments", EnrollmentRouter);
 routes.use("/parents", ParentRouter);
+routes.use("/parent-portal", ParentPortalRouter);
 routes.use("/students", StudentRouter);
 routes.use("/teachers", TeacherRouter);
 

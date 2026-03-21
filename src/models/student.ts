@@ -36,6 +36,9 @@ export interface IStudent
   acceptedAt?: Date;
   rejectedAt?: Date;
 
+  // Note for parent
+  parentNote?: string;
+
   // Relations
   branchId?: Types.ObjectId;
   parentId?: Types.ObjectId;
@@ -153,6 +156,13 @@ const StudentSchema = new Schema<IStudent>(
     },
     rejectedAt: {
       type: Date,
+    },
+
+    // Note for parent
+    parentNote: {
+      type: String,
+      trim: true,
+      maxlength: [1000, "Parent note cannot exceed 1000 characters"],
     },
 
     // Relations
