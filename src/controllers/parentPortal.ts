@@ -12,7 +12,7 @@ export const getStudentForParentPortal = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { studentId } = req.params;
+    const studentId = req.params.studentId as string;
 
     if (!Types.ObjectId.isValid(studentId)) {
       res.status(400).json({ success: false, message: "معرف الطالب غير صحيح" });
